@@ -8,36 +8,61 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\userResource;
 use Laravel\Socialite\Facades\Socialite;
+use Google_Client;
 
 class SocialLoginController extends Controller
 {
-    public function socialLogin(Request $request, $provider){
-        $token = $request->input('token');
-        $user = Socialite::driver($provider)->stateless()->userFromToken($token);
+    public function socialLogin(Request $request, $provider)
+    {
+        if ($provider !== 'google') {
+            return response()->json(['error' => 'Unsupported provider'], 400);
+        }
 
-        $refresh_token = Str::random(60);
-    
-        $user = User::firstOrCreate([
-            'email' => $user->getEmail(),
-        ],[
-            'name' => $user->getName(),
-            'email' => $user->getEmail(),
-            'provider' => $provider,
-            'provider_id' => $user->getId(),
-            'provider_token' => $user->token,
-            'refresh_token' => $refresh_token,
-        ]);
+        $idToken = $request->input('token');
+        
+        // Set up the Google Client
+        $client = new Google_Client(['client_id' => config('services.google.client_id')]);
+        
+        try {
+            // Verify the ID token
+            $payload = $client->verifyIdToken($idToken);
+            
+            if ($payload) {
+                // Token is valid
+                $googleId = $payload['sub'];
+                $email = $payload['email'];
+                $name = $payload['name'] ?? null;
+                
+                // Find or create user in your database
+                $user = User::updateOrCreate(
+                    ['provider_id' => $googleId],
+                    [
+                        'name' => $name,
+                        'provider' => $provider,
+                        'provider_id' => $googleId,
+                        'provider_token' => $idToken,
+                        'email' => $email,
+                    ]
+                );
+                
+                // Generate authentication token
+                $token = $user->createToken('google-token')->plainTextToken;
+                
+                return response()->json([
+                    'message' => "user logged in successfully",
+                    'statusCode' => 200,
+                    'data' => [
+                        'user' => $user,
+                        'token' => $token
+                    ]
+                ], 200);
 
-        $token = $user->createToken('auth_token')->plainTextToken;
-
-        return response()->json([
-            'statusCode' => 201,
-            'message' => 'User logged in successfully',
-            'data' => [
-                'user' => new userResource($user),
-                'access_token' => $token,
-                'expires_in' => config('jwt.ttl') * 60,
-            ]
-            ], 201 )->cookie('refresh_token', $refresh_token, 60 * 24 * 7, null, null, true, true);
+            }
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 401);
+        }
+        
+        return response()->json(['error' => 'Invalid token'], 401);
     }
+
 }
