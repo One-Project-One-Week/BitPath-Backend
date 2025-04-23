@@ -52,7 +52,7 @@ class SocialLoginController extends Controller
                     'message' => "user logged in successfully",
                     'statusCode' => 200,
                     'data' => [
-                        'user' => $user,
+                        'user' => new userResource($user),
                         'token' => $token
                     ]
                 ], 200);
@@ -62,7 +62,6 @@ class SocialLoginController extends Controller
             return response()->json(['error' => $e->getMessage()], 401);
         }
         
-        return response()->json(['error' => 'Invalid token'], 401);
     }
 
 }
