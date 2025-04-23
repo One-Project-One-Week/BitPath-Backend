@@ -25,7 +25,7 @@ return new class extends Migration
             $table->date('last_studied_date')->nullable();
             $table->string("provider")->nullable()->default('simple');
             $table->string("provider_id")->nullable();
-            $table->string("provider_token")->nullable();
+            $table->text("provider_token")->nullable();
             $table->rememberToken();
             $table->timestamps();
         });
