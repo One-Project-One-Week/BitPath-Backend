@@ -2,13 +2,16 @@
 
 namespace App\Models;
 
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Roadmap extends Model
 {
+    use HasFactory;
+
     protected $fillable = [
         'prompt',
-        'response',
+        'title',
         'user_id'
     ];
 
@@ -24,6 +27,11 @@ class Roadmap extends Model
 
     public function planRequest()
     {
-        return $this->hasOne(planRequest::class);
+        return $this->hasOne(PlanRequest::class);
+    }
+
+    public function roadmapSkills()
+    {
+        return $this->hasMany(RoadmapSkill::class);
     }
 }
