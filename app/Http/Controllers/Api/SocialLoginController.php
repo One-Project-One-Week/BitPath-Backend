@@ -9,6 +9,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\userResource;
 use Laravel\Socialite\Facades\Socialite;
 use Google_Client;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class SocialLoginController extends Controller
 {
@@ -33,6 +34,7 @@ class SocialLoginController extends Controller
                 $email = $payload['email'];
                 $name = $payload['name'] ?? null;
                 
+                $refresh_token = Str::random(60);
                 // Find or create user in your database
                 $user = User::updateOrCreate(
                     ['provider_id' => $googleId],
@@ -41,21 +43,24 @@ class SocialLoginController extends Controller
                         'provider' => $provider,
                         'provider_id' => $googleId,
                         'provider_token' => $idToken,
+                        'refresh_token' => hash('sha256', $refresh_token),
                         'email' => $email,
                     ]
                 );
                 
                 // Generate authentication token
-                $token = $user->createToken('google-token')->plainTextToken;
+                $token = JWTAuth::fromUser($user);
                 
                 return response()->json([
                     'message' => "user logged in successfully",
                     'statusCode' => 200,
                     'data' => [
-                        'user' => new userResource($user),
+                        'user_name' => $user->name,
+                        'user_email' => $user->email,
+                        'user_id' => $user->id,
                         'token' => $token
                     ]
-                ], 200);
+                ], 200)->cookie('refresh_token', $refresh_token, 60 * 24 * 7, null, null, true, true);
 
             }
         } catch (\Exception $e) {
