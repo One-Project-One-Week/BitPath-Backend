@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Roadmap;
+use App\Models\RoadmapSkill;
 use App\Models\User;
 use Gemini\Data\GenerationConfig;
 use Gemini\Enums\ModelType;
@@ -32,18 +33,22 @@ class RoadmapController extends Controller
         $prompt = "Create a learning roadmap for texts in the following format: {text} with the following requirements:" .
             $input .
             "1. Respond ONLY in valid JSON format
-            2. The response should be an array of objects
-            3. Each object should have exactly these properties:
+            2. The response should be an objects containing:
+                - 'title' : title related to roadmap,
+                - 'skills' : array of objects containing the skills
+            3. Each skills object should have exactly these properties:
                 - 'skill': the name of the technology/skill
                 - 'duration': estimated learning time
                 - 'recommendedResource': specific course or resource name
                 - 'why' : why should we study this
                 - 'level' : level of this skill
             The JSON structure should look exactly like this:
-                    [
-                    {'skill': 'HTML', 'why': 'why should we study this','duration': '2 weeks','level':'level of this skill', 'recommendedResource': 'HTML Course Name'},
-                    {'skill': 'CSS', 'why': 'why should we study this','duration': '1 month', ''level': 'level of this skill', 'recommendedResource': 'CSS Resource Name'}
+                { title: 'Title RoadMap',
+                    skills: [
+                        {'skill': 'HTML', 'why': 'why should we study this','duration': '2 weeks','level':'level of this skill', 'recommendedResource': 'HTML Course Name'},
+                        {'skill': 'CSS', 'why': 'why should we study this','duration': '1 month', ''level': 'level of this skill', 'recommendedResource': 'CSS Resource Name'}
                     ]
+                }
             Include all skills following a logical progression. Your response should be a raw JSON array with NO markdown formatting, code blocks, or explanatory text.";
 
         $config = new GenerationConfig(
@@ -93,11 +98,22 @@ class RoadmapController extends Controller
         //     ], 401);
         // }
 
-        Roadmap::create([
+        $roadmap = Roadmap::create([
             'prompt' => $request->input('prompt'),
-            'response' => json_encode($request->input('response')),
+            'title' => $request->response['title'],
             // 'user_id' => $user->id,
+            'user_id' => 1,
         ]);
+
+        foreach($request->response['skills'] as $skill){
+            $roadmap->roadmapSkills()->create([
+                'skill' => $skill['skill'],
+                'why' => $skill['why'],
+                'duration' => $skill['duration'],
+                'level' => $skill['level'],
+                'recommended_resource' => $skill['recommendedResource'],
+            ]);
+        }
 
         return response()->json([
             'status' => 200,
