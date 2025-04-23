@@ -24,5 +24,5 @@ Route::group(['prefix' => 'auth'], function(){
     Route::get('profile', [JwtAuthController::class, 'profile'])->middleware('jwtauthmiddleware');
     Route::post('logout', [JwtAuthController::class, 'logout'])->middleware('jwtauthmiddleware');
     Route::post('refresh', [JwtAuthController::class, 'refresh']);
-    Route::post('{provider}/callback', [SocialLoginController::class, 'socialLogin']);
+    // Route::post('{provider}/callback', [SocialLoginController::class, 'socialLogin']);
 });
