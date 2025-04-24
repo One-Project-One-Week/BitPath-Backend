@@ -91,7 +91,6 @@ class RoadmapController extends Controller
             ], 422);
         }
 
-        /** @var User $user */
         $user = JWTAuth::user();
         if (!$user) {
             return response()->json([
