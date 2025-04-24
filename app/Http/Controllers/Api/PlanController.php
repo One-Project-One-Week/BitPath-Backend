@@ -6,11 +6,14 @@ use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\PlanRequest;
 use App\Models\Roadmap;
+use App\Models\RoadmapSkill;
 use App\Models\Task;
+use App\Models\User;
 use Gemini\Data\GenerationConfig;
 use Gemini\Enums\ModelType;
 use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
@@ -19,7 +22,7 @@ class PlanController extends Controller
     public function generatePlan(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'roadmap_id' => 'required|integer|exists:roadmaps,id',
+            'skill_id' => 'required|integer|exists:roadmap_skills,id',
             'type' => 'required|string'
         ]);
 
@@ -31,7 +34,7 @@ class PlanController extends Controller
             ], 422);
         }
 
-        $roadmap = Roadmap::findOrFail($request->roadmap_id);
+        $skill = RoadmapSkill::findOrFail($request->skill_id);
         if ($request->type == 'deadline') {
             $time = "for $request->days per day";
         } else {
@@ -39,7 +42,7 @@ class PlanController extends Controller
         }
 
         $prompt = "Create a micro task planner for this roadmap in tripple backtip." .
-            $roadmap->response .
+            $skill->toJson() .
             "I want to study this EXACT roadmap" . $time .
             "1. Respond ONLY in valid JSON format
                 2. The response should be an array of objects
@@ -66,33 +69,32 @@ class PlanController extends Controller
         $response_json = json_decode($clean_json, true);
         $total_tasks = count($response_json);
         
-
-        /** @var User $user */
-        // $user = Auth::user();
-        // if (!$user) {
-        //     return response()->json([
-        //         'status' => 401,
-        //         'message' => 'Unauthorized',
-        //     ], 401);
-        // }
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
 
         PlanRequest::create([
-            // 'user_id' => $user->id,
-            'roadmap_id' => $roadmap->id,
+            'user_id' => $user->id,
+            'skill_id' => $skill->id,
             'type' => $request->type,
             'duration' => $request->duration,
             'days' => $request->days,
         ]);
 
         $plan = Plan::create([
-            'roadmap_id' => $roadmap->id,
+            'skill_id' => $skill->id,
             'is_finished' => false,
             'total_tasks' => $total_tasks,
             'completed_tasks' => 0,
         ]);
 
         foreach($response_json as $task){
-            $plan->tasks()->create([
+            Task::create([
+                'plan_id' => $plan->id,
                 'is_finished' => false,
                 'day_number' => $task['dayNumber'],
                 'task' => $task['task'],
