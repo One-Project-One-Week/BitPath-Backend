@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->enum('role', ['admin', 'user'])->default('user');
-            $table->string('refresh_token')->nullable();
+            $table->string('refresh_token');
             $table->string('profile_picture')->nullable();
             $table->string("longest_streak")->default(0);
             $table->string("current_streak")->default(0);

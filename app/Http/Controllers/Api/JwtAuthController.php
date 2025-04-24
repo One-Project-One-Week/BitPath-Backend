@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserProfileResource;
 use App\Http\Resources\userResource;
 use Illuminate\Cache\Events\RetrievingKey;
 use Illuminate\Support\Facades\Hash;
@@ -98,7 +99,7 @@ class JwtAuthController extends Controller
             'statusCode' => 200,
             'message' => 'User profile retrieved successfully',
             'data' => [
-                'user' => $user,
+                'user' => new UserProfileResource($user),
             ]
         ], 200);
     }
