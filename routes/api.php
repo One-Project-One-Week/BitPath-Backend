@@ -25,6 +25,12 @@ Route::group(['prefix' => 'auth'], function(){
     Route::post('logout', [JwtAuthController::class, 'logout'])->middleware('jwtauthmiddleware');
     Route::post('refresh', [JwtAuthController::class, 'refresh']);
     Route::post('{provider}/callback', [SocialLoginController::class, 'socialLogin']);
+});
 
+Route::group(['middleware' => ['jwtauthmiddleware']], function(){
+    Route::resource('/recommandresources',RecommandResourcesController::class);
+    Route::resource('/resoucelinks',ResourcelinksController::class);
+    
     Route::post('/roadmap/store', [RoadmapController::class, 'store'])->name('roadmap.store');
+    Route::get('/roadmap/{roadmap}', [RoadmapController::class, 'show'])->name('roadmap.show');
 });

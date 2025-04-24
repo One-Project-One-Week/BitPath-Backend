@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\RecommandResource;
+use App\Models\Resourcelink;
 use App\Models\Roadmap;
 use App\Models\RoadmapSkill;
 use App\Models\User;
@@ -11,6 +13,7 @@ use Gemini\Enums\ModelType;
 use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Claims\JwtId;
 use Tymon\JWTAuth\Facades\JWTAuth;
@@ -91,7 +94,7 @@ class RoadmapController extends Controller
             ], 422);
         }
 
-        $user = JWTAuth::user();
+        $user = Auth::user();
         if (!$user) {
             return response()->json([
                 'status' => 401,
@@ -103,22 +106,40 @@ class RoadmapController extends Controller
             'prompt' => $request->input('prompt'),
             'title' => $request->response['title'],
             'user_id' => $user->id,
-            // 'user_id' => 1,
         ]);
 
         foreach ($request->response['skills'] as $skill) {
-            $roadmap->roadmapSkills()->create([
+            $roadmap_skill = RoadmapSkill::create([
+                'roadmap_id' => $roadmap->id,
                 'skill' => $skill['skill'],
                 'why' => $skill['why'],
                 'duration' => $skill['duration'],
                 'level' => $skill['level'],
-                'recommended_resource' => $skill['recommendedResource'],
             ]);
+
+            $resource = RecommandResource::create([
+                'skill_id' => $roadmap_skill->id,
+            ]);
+
+            foreach ($skill['recommendedResource'] as $item) {
+                Resourcelink::create([
+                    'recommand_resource_id' => $resource->id,
+                    'name' => $item['name'],
+                    'link' => $item['link'],
+                ]);
+            }
         }
 
         return response()->json([
             'status' => 200,
             'message' => 'Roadmap stored successfully'
         ], 200);
+    }
+
+    public function show(Roadmap $roadmap){
+        return response()->json([
+            'status' => 200,
+            'roadmap' => $roadmap->load('roadmapSkills'),
+        ]);
     }
 }
