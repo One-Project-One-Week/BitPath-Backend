@@ -136,10 +136,28 @@ class RoadmapController extends Controller
         ], 200);
     }
 
-    public function show(Roadmap $roadmap){
+    public function show(Roadmap $roadmap)
+    {
         return response()->json([
             'status' => 200,
             'roadmap' => $roadmap->load('roadmapSkills'),
+        ]);
+    }
+
+    public function index()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $roadmaps = Roadmap::select('id', 'title')->where('user_id', $user->id)->get();
+        return response()->json([
+            'status' => 200,
+            'roadmap' => $roadmaps,
         ]);
     }
 }
