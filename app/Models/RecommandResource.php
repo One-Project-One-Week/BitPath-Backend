@@ -10,7 +10,11 @@ class RecommandResource extends Model
     protected $primaryKey = 'id';
 
     protected $fillable = [
-        'skill',
+        'skill_id',
     ];
     
+    public function roadmapSkill()
+    {
+        return $this->belongsTo(RoadmapSkill::class, 'skill_id');
+    }
 }

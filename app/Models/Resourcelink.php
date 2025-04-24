@@ -11,6 +11,8 @@ class Resourcelink extends Model
 
     protected $fillable = [
         'recommand_resource_id',
+        'name',
+        'link'
     ];
 
     public function recommand_resource()
