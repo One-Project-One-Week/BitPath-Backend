@@ -160,4 +160,31 @@ class RoadmapController extends Controller
             'roadmap' => $roadmaps,
         ]);
     }
+
+    public function destroy(Roadmap $roadmap)
+    {
+        $roadmap->delete();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Roadmap deleted successfully'
+        ]);
+    }
+
+    public function getRoadmapSkills(Roadmap $roadmap)
+    {
+        $skills = RoadmapSkill::where('roadmap_id', $roadmap->id)->get();
+        return response()->json([
+            'status' => 200,
+            'skills' => $skills,
+        ]);
+    }
+
+    public function getRoadmapSkill(Roadmap $roadmap, RoadmapSkill $skill)
+    {
+        $skill = RoadmapSkill::where('roadmap_id', $roadmap->id)->where('id', $skill->id)->first();
+        return response()->json([
+            'status' => 200,
+            'skill' => $skill,
+        ]);
+    }
 }

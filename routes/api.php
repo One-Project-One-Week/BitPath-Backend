@@ -32,6 +32,10 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::get('/roadmap', [RoadmapController::class, 'index'])->name('roadmap.index');
     Route::post('/roadmap/store', [RoadmapController::class, 'store'])->name('roadmap.store');
     Route::get('/roadmap/{roadmap}', [RoadmapController::class, 'show'])->name('roadmap.show');
+    Route::delete('/roadmap/{roadmap}', [RoadmapController::class, 'destroy'])->name('roadmap.destroy');
+
+    Route::get('/roadmap/{roadmap}/skills', [RoadmapController::class, 'getRoadmapSkills'])->name('roadmap.getRoadmapSkills');
+    Route::get('/roadmap/{roadmap}/skills/{skill}', [RoadmapController::class, 'getRoadmapSkill'])->name('roadmap.getRoadmapSkill');
 
     Route::post('/plan', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
 });
