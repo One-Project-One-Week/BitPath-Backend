@@ -14,10 +14,8 @@ class RecommandedResourceResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        return [
-            // 'id' => $this->id,
-            // 'skill_id' => $this->skill_id,
-            'links' => ResourceLinkResource::collection($this->whenLoaded('resourceLinks')),
-        ];
+         return $this->whenLoaded('resourceLinks', function () {
+            return ResourceLinkResource::collection($this->resourceLinks)->resolve();
+        }, []);
     }
 }
