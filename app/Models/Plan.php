@@ -7,15 +7,15 @@ use Illuminate\Database\Eloquent\Model;
 class Plan extends Model
 {
     protected $fillable = [
-        'roadmap_id',
+        'skill_id',
         'is_finished',
         'total_tasks',
         'completed_tasks'
     ];
 
-    public function roadmap()
+    public function roadmapSkill()
     {
-        return $this->belongsTo(Roadmap::class);
+        return $this->belongsTo(RoadmapSkill::class, 'skill_id');
     }
 
     public function planParticipants()
