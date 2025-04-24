@@ -4,8 +4,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\RecommandResource;
+use App\Models\User;
+use App\Notifications\DailyReminderNotify;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Notification;
 
 class RecommandResourcesController extends Controller
 {
@@ -43,6 +46,10 @@ class RecommandResourcesController extends Controller
             $recommandresource->skill = $request->skill;
 
             $recommandresource->save();
+
+            // $users = User::all();
+            // Notification::send($users,new DailyReminderNotify($recommandresource->id,$recommandresource->title,$recommandresource->content));
+
                
             return response()->json([
                 'status' => 200,

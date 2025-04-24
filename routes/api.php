@@ -21,7 +21,6 @@ Route::group(['prefix' => 'auth'], function(){
     Route::post('logout', [JwtAuthController::class, 'logout'])->middleware('jwtauthmiddleware');
     Route::post('refresh', [JwtAuthController::class, 'refresh'])->middleware('jwtauthmiddleware');
 
-    
 });
 
 Route::group(['middleware' => ['jwtauthmiddleware']], function(){
