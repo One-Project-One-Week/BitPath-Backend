@@ -18,14 +18,14 @@ return new class extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password')->nullable();
             $table->enum('role', ['admin', 'user'])->default('user');
+            $table->string('refresh_token')->nullable();
             $table->string('profile_picture')->nullable();
-            $table->string('refresh_token');
             $table->string("longest_streak")->default(0);
             $table->string("current_streak")->default(0);
             $table->date('last_studied_date')->nullable();
             $table->string("provider")->nullable()->default('simple');
             $table->string("provider_id")->nullable();
-            $table->string("provider_token")->nullable();
+            $table->text("provider_token")->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

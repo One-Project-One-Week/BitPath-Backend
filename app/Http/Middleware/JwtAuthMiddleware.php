@@ -25,6 +25,5 @@ class JwtAuthMiddleware
             ], 401);    
         }
     return $next($request);
-    
     }
 }

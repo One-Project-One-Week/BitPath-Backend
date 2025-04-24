@@ -10,7 +10,8 @@ class Task extends Model
         'plan_id', 
         'is_finished',
         'day_number',
-        'task'
+        'task',
+        'topic'
     ];
 
     public function plan()
