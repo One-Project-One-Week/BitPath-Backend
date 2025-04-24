@@ -20,16 +20,6 @@ class Roadmap extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function plan()
-    {
-        return $this->hasOne(Plan::class);
-    }
-
-    public function planRequest()
-    {
-        return $this->hasOne(PlanRequest::class);
-    }
-
     public function roadmapSkills()
     {
         return $this->hasMany(RoadmapSkill::class);
