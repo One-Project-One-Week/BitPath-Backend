@@ -1,0 +1,7 @@
+email to send with schedule
+----------------------------
+=> php artisan make:command SendDailyReminderNotify
+=> logger မှာကြည့်ဖုိ့အတွက်   php artisan app:send-daily-reminder-notify 
+=> console.php မှာ  Schedule::command(SendDailyReminderNotify::class)->everyMinute(); ကို အသုံးပြုပါမယ်
+=> php artisan schedule:list (list ထုတ်ကြည့်တာ)
+=> php artisan schedule:run အဲ့တာဆို စပြီးအလုပ်လုပ်ပြီ
