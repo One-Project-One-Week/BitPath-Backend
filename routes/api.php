@@ -31,4 +31,5 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::resource('/recommandresources',RecommandResourcesController::class);
     Route::resource('/resoucelinks',ResourcelinksController::class);
     Route::post('/roadmap/store', [RoadmapController::class, 'store'])->name('roadmap.store');
+    Route::get('/roadmap/{roadmap}', [RoadmapController::class, 'show'])->name('roadmap.show');
 });

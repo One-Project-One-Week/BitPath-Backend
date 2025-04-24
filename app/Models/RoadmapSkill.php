@@ -14,6 +14,8 @@ class RoadmapSkill extends Model
         'recommended_resource',
     ];
 
+    protected $with = ['recommandResource'];
+
     public function roadmap()
     {
         return $this->belongsTo(roadmap::class);
@@ -27,5 +29,10 @@ class RoadmapSkill extends Model
     public function planRequest()
     {
         return $this->hasOne(PlanRequest::class, 'skill_id');
+    }
+
+    public function recommandResource()
+    {
+        return $this->hasOne(RecommandResource::class, 'skill_id');
     }
 }
