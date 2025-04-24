@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\RoadmapResource;
+use App\Http\Resources\RoadmapSkillResource;
 use App\Models\RecommandResource;
 use App\Models\Resourcelink;
 use App\Models\Roadmap;
@@ -162,7 +163,7 @@ class RoadmapController extends Controller
 
     public function destroy(Roadmap $roadmap)
     {
-        $this->authorize('view', $roadmap);
+        $this->authorize('delete', $roadmap);
         $roadmap->delete();
         return response()->json([
             'status' => 200,
@@ -172,19 +173,29 @@ class RoadmapController extends Controller
 
     public function getRoadmapSkills(Roadmap $roadmap)
     {
+        $this->authorize('view', $roadmap);
+
         $skills = RoadmapSkill::where('roadmap_id', $roadmap->id)->get();
         return response()->json([
             'status' => 200,
-            'skills' => $skills,
+            'skills' => RoadmapSkillResource::collection($skills),
         ]);
     }
 
     public function getRoadmapSkill(Roadmap $roadmap, RoadmapSkill $skill)
     {
-        $skill = RoadmapSkill::where('roadmap_id', $roadmap->id)->where('id', $skill->id)->first();
+        $this->authorize('view', $roadmap);
+
+        if ($skill->roadmap_id !== $roadmap->id) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'This skill does not belong to the specified roadmap.',
+            ], 403);
+        }
+        
         return response()->json([
             'status' => 200,
-            'skill' => $skill,
+            'skill' => new RoadmapSkillResource($skill),
         ]);
     }
 }
