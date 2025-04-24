@@ -12,9 +12,16 @@ class RecommandResource extends Model
     protected $fillable = [
         'skill_id',
     ];
-    
+
+    protected $with = ['resourceLinks'];
+
     public function roadmapSkill()
     {
         return $this->belongsTo(RoadmapSkill::class, 'skill_id');
+    }
+
+    public function resourceLinks()
+    {
+        return $this->hasMany(Resourcelink::class, 'recommand_resource_id');
     }
 }

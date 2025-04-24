@@ -11,6 +11,7 @@ class RoadmapSkill extends Model
         'skill',
         'why',
         'duration',
+        'level',
         'recommended_resource',
     ];
 
