@@ -43,6 +43,7 @@ class SocialLoginController extends Controller
                         'provider' => $provider,
                         'provider_id' => $googleId,
                         'provider_token' => $idToken,
+                        'profile_picture' => $payload['picture'] ?? null,
                         'refresh_token' => hash('sha256', $refresh_token),
                         'email' => $email,
                     ]
