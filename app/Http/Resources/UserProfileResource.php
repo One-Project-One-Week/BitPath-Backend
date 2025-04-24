@@ -18,6 +18,7 @@ class UserProfileResource extends JsonResource
             'id' => $this->id,  
             'name' => $this->name,
             'email' => $this->email,
+            'profile_picture' => $this->profile_picture,
             'longest_streak' => $this->longest_streak,
             'current_streak' => $this->current_streak,
             'last_studied_date' => $this->last_studied_date,
