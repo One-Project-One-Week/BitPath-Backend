@@ -6,7 +6,9 @@ use App\Models\User;
 use Illuminate\Support\Str;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Http\Resources\UserProfileResource;
 use App\Http\Resources\userResource;
+use Illuminate\Cache\Events\RetrievingKey;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Exceptions\JWTException;
@@ -72,8 +74,8 @@ class JwtAuthController extends Controller
         }
 
         $user = JWTAuth::user();
-
         $refresh_token = Str::random(60);
+
         $user->update([
             'refresh_token' => hash('sha256', $refresh_token),
         ]);
@@ -97,7 +99,7 @@ class JwtAuthController extends Controller
             'statusCode' => 200,
             'message' => 'User profile retrieved successfully',
             'data' => [
-                'user' => $user,
+                'user' => new UserProfileResource($user),
             ]
         ], 200);
     }
@@ -107,7 +109,7 @@ class JwtAuthController extends Controller
         return response()->json([
             'statusCode' => 200,
             'message' => 'User logged out successfully',
-        ], 200);
+        ], 200)->cookie('refresh_token', null, -1, null, null, true, true);
     }
 
 
@@ -124,7 +126,14 @@ class JwtAuthController extends Controller
             ], 401);
         }
         
-        $new_access_token = JWTAuth::fromUser($user);
+        try{
+            $new_access_token = JWTAuth::fromUser($user);
+        }catch(JWTException $e){
+            return response()->json([
+                'statusCode' => 500,
+                'message' => 'Could not refresh token',
+            ], 500);
+        }
 
         return response()->json([
             'statusCode' => 200,
@@ -132,6 +141,6 @@ class JwtAuthController extends Controller
             'data' => [
                 'access_token' => $new_access_token,
             ]
-        ]);
+        ], 200 );
     }
 }
