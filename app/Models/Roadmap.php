@@ -15,6 +15,8 @@ class Roadmap extends Model
         'user_id'
     ];
 
+    protected $with = ['roadmapSkills'];
+
     public function user()
     {
         return $this->belongsTo(User::class);

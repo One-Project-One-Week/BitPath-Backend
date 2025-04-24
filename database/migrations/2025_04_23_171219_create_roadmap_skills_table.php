@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('skill');
             $table->string('why');
             $table->string('duration');
-            $table->string('recommended_resource');
+            $table->string('level');
             $table->timestamps();
         });
     }

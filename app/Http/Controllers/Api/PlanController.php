@@ -26,6 +26,16 @@ class PlanController extends Controller
             'type' => 'required|string'
         ]);
 
+        if ($request->type == 'deadline') {
+            $validator = Validator::make($request->all(), [
+                'days' => 'required|integer',
+            ]);
+        } else {
+            $validator = Validator::make($request->all(), [
+                'duration' => 'required|string'
+            ]);
+        }
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 422,
@@ -34,12 +44,8 @@ class PlanController extends Controller
             ], 422);
         }
 
+        $time = ($request->type == 'deadline') ? "for $request->days per day" : "within EXACTLY $request->duration days";
         $skill = RoadmapSkill::findOrFail($request->skill_id);
-        if ($request->type == 'deadline') {
-            $time = "for $request->days per day";
-        } else {
-            $time = "within EXACTLY $request->duration days";
-        }
 
         $prompt = "Create a micro task planner for this roadmap in tripple backtip." .
             $skill->toJson() .
@@ -68,7 +74,7 @@ class PlanController extends Controller
 
         $response_json = json_decode($clean_json, true);
         $total_tasks = count($response_json);
-        
+
         $user = Auth::user();
         if (!$user) {
             return response()->json([
@@ -92,7 +98,7 @@ class PlanController extends Controller
             'completed_tasks' => 0,
         ]);
 
-        foreach($response_json as $task){
+        foreach ($response_json as $task) {
             Task::create([
                 'plan_id' => $plan->id,
                 'is_finished' => false,

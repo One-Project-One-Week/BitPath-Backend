@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RoadmapResource;
 use App\Models\RecommandResource;
 use App\Models\Resourcelink;
 use App\Models\Roadmap;
@@ -18,8 +19,11 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Claims\JwtId;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 class RoadmapController extends Controller
 {
+    use AuthorizesRequests;
     public function generateRoadmap(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -138,31 +142,27 @@ class RoadmapController extends Controller
 
     public function show(Roadmap $roadmap)
     {
+        $this->authorize('view', $roadmap);
         return response()->json([
             'status' => 200,
-            'roadmap' => $roadmap->load('roadmapSkills'),
+            'roadmap' => new RoadmapResource($roadmap),
         ]);
     }
 
     public function index()
     {
-        $user = Auth::user();
-        if (!$user) {
-            return response()->json([
-                'status' => 401,
-                'message' => 'Unauthorized',
-            ], 401);
-        }
+        $this->authorize('viewAny', Roadmap::class);
 
-        $roadmaps = Roadmap::select('id', 'title')->where('user_id', $user->id)->get();
+        $roadmaps = Roadmap::select('id', 'title')->where('user_id', Auth::id())->get();
         return response()->json([
             'status' => 200,
-            'roadmap' => $roadmaps,
+            'roadmap' => RoadmapResource::collection($roadmaps),
         ]);
     }
 
     public function destroy(Roadmap $roadmap)
     {
+        $this->authorize('view', $roadmap);
         $roadmap->delete();
         return response()->json([
             'status' => 200,
