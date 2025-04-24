@@ -136,10 +136,55 @@ class RoadmapController extends Controller
         ], 200);
     }
 
-    public function show(Roadmap $roadmap){
+    public function show(Roadmap $roadmap)
+    {
         return response()->json([
             'status' => 200,
             'roadmap' => $roadmap->load('roadmapSkills'),
+        ]);
+    }
+
+    public function index()
+    {
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+        $roadmaps = Roadmap::select('id', 'title')->where('user_id', $user->id)->get();
+        return response()->json([
+            'status' => 200,
+            'roadmap' => $roadmaps,
+        ]);
+    }
+
+    public function destroy(Roadmap $roadmap)
+    {
+        $roadmap->delete();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Roadmap deleted successfully'
+        ]);
+    }
+
+    public function getRoadmapSkills(Roadmap $roadmap)
+    {
+        $skills = RoadmapSkill::where('roadmap_id', $roadmap->id)->get();
+        return response()->json([
+            'status' => 200,
+            'skills' => $skills,
+        ]);
+    }
+
+    public function getRoadmapSkill(Roadmap $roadmap, RoadmapSkill $skill)
+    {
+        $skill = RoadmapSkill::where('roadmap_id', $roadmap->id)->where('id', $skill->id)->first();
+        return response()->json([
+            'status' => 200,
+            'skill' => $skill,
         ]);
     }
 }
