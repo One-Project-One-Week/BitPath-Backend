@@ -19,7 +19,9 @@ class SendDailyReminderNotify extends Command
     
         logger()->info('send email....');
         $users = User::all();
-        Notification::send($users,new DailyReminderNotify);
+        $taskid = 1;
+        $taskcontent= "Task is testing";
+        Notification::send($users,new DailyReminderNotify($taskid,$taskcontent));
 
     }
 }
