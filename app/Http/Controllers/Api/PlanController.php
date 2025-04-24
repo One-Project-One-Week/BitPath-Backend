@@ -23,6 +23,13 @@ class PlanController extends Controller
 
     public function regeneratePlan(Request $request, Plan $plan){
 
+        $tasks = $plan->tasks;
+        $plan_request = PlanRequest::where('skill_id', $plan->skill_id)->first();
+
+        $tasks->each(function ($task) {
+            $task->delete();
+        });
+
         $validator = Validator::make($request->all(), [
             'skill_id' => 'required|integer|exists:roadmap_skills,id',
             'type' => 'required|string',
@@ -35,12 +42,80 @@ class PlanController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-        // $validator
+
+        $skill = RoadmapSkill::findOrFail($request->skill_id);
+        if ($request->type == 'deadline') {
+            $time = "for $request->days per day";
+        } else {
+            $time = "within EXACTLY $request->duration days";
+        }
+
+        $prompt = "Create a micro task planner for this roadmap in tripple backtip." .
+            $skill->toJson() .
+            "I want to study this EXACT roadmap" . $time .
+            "1. Respond ONLY in valid JSON format
+                2. The response should be an array of objects
+                3. Each object should have exactly these properties:
+                    - topic : 'Topic of the task',
+                    - task : 'Task to be done per day'.
+                    - dayNumber : 'Day number of the task start from 1 and increase one per row',
+            Include all skills following a logical progression.
+            Your response should be a raw JSON array with NO markdown formatting, code blocks, or explanatory text.";
+
+        $config = new GenerationConfig(
+            temperature: 0.1
+        );
+
+        $response = Gemini::generativeModel(ModelType::GEMINI_FLASH)
+            ->withGenerationConfig($config)
+            ->generateContent($prompt);
+
+        $response_text = $response->text();
+
+        $clean_json = trim($response_text);
+        $clean_json = preg_replace('/^```json\s*|\s*```$/', '', $clean_json);
+
+        $response_json = json_decode($clean_json, true);
+        $total_tasks = count($response_json);
+
+        $user = Auth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
+
+
+        $plan_request->update([
+            'type' => $request->type,
+            'duration' => $request->duration,
+            'days' => $request->days,
+        ]);
+
+         $plan->update([
+            'skill_id' => $skill->id,
+            'is_finished' => false,
+            'total_tasks' => $total_tasks,
+            'completed_tasks' => 0,
+        ]);
+
+        foreach($response_json as $task){
+            Task::create([
+                'plan_id' => $plan->id,
+                'is_finished' => false,
+                'day_number' => $task['dayNumber'],
+                'task' => $task['task'],
+                'topic' => $task['topic'],
+            ]);
+        }
+
         return response()->json([
             'status' => 200,
             'message' => 'Plan regenerated successfully',
-            'plan' => $plan->roadmapSkill,
-        ]);
+            'total_tasks' => $total_tasks,
+            'plan' => $response_json,
+        ], 200 );
     }
 
 
