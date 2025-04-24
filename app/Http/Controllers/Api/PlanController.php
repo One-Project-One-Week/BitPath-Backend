@@ -14,11 +14,36 @@ use Gemini\Enums\ModelType;
 use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Validator;
 
 class PlanController extends Controller
 {
+
+    public function regeneratePlan(Request $request, Plan $plan){
+
+        $validator = Validator::make($request->all(), [
+            'skill_id' => 'required|integer|exists:roadmap_skills,id',
+            'type' => 'required|string',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+        // $validator
+        return response()->json([
+            'status' => 200,
+            'message' => 'Plan regenerated successfully',
+            'plan' => $plan->roadmapSkill,
+        ]);
+    }
+
+
     public function generatePlan(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -49,7 +74,7 @@ class PlanController extends Controller
                 3. Each object should have exactly these properties:
                     - topic : 'Topic of the task',
                     - task : 'Task to be done per day'.
-                    - dayNumber : 'Day number of the task',
+                    - dayNumber : 'Day number of the task start from 1 and increase one per row',
             Include all skills following a logical progression.
             Your response should be a raw JSON array with NO markdown formatting, code blocks, or explanatory text.";
 
