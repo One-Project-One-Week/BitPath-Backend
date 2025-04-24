@@ -8,7 +8,7 @@ class PlanRequest extends Model
 {
     protected $fillable = [
         'user_id', 
-        'roadmap_id',
+        'skill_id',
         'type',
         'duration',
         'days'
@@ -19,8 +19,8 @@ class PlanRequest extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function roadmap()
+    public function roadmapSkill()
     {
-        return $this->belongsTo(Roadmap::class);
+        return $this->belongsTo(RoadmapSkill::class, 'skill_id');
     }
 }
