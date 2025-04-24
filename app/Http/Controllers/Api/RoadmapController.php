@@ -12,6 +12,8 @@ use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Tymon\JWTAuth\Claims\JwtId;
+use Tymon\JWTAuth\Facades\JWTAuth;
 
 class RoadmapController extends Controller
 {
@@ -39,14 +41,14 @@ class RoadmapController extends Controller
             3. Each skills object should have exactly these properties:
                 - 'skill': the name of the technology/skill
                 - 'duration': estimated learning time
-                - 'recommendedResource': specific course or resource name
+                - 'recommendedResource':[ {'name': latest link},{'name': latest link}]
                 - 'why' : why should we study this
                 - 'level' : level of this skill
             The JSON structure should look exactly like this:
                 { title: 'Title RoadMap',
                     skills: [
-                        {'skill': 'HTML', 'why': 'why should we study this','duration': '2 weeks','level':'level of this skill', 'recommendedResource': 'HTML Course Name'},
-                        {'skill': 'CSS', 'why': 'why should we study this','duration': '1 month', ''level': 'level of this skill', 'recommendedResource': 'CSS Resource Name'}
+                        {'skill': 'HTML', 'why': 'why should we study this','duration': '2 weeks','level':'level of this skill', 'recommendedResource':[{'name': 'HTML Basic Resource Name','link': 'HTML Basic Resource Link'},{'name': 'HTMLCourse Name', 'link': 'HTMLCourse Link'}]},
+                        {'skill': 'CSS', 'why': 'why should we study this','duration': '1 month', 'level': 'level of this skill', 'recommendedResource': [{'name': 'CSS Basic Resource Name','link': 'CSS Basic Resource Link'},{'name': 'CSSCourse Name', 'link': 'CSSCourse Link'}]}
                     ]
                 }
             Include all skills following a logical progression. Your response should be a raw JSON array with NO markdown formatting, code blocks, or explanatory text.";
@@ -90,22 +92,22 @@ class RoadmapController extends Controller
         }
 
         /** @var User $user */
-        // $user = Auth::user();
-        // if (!$user) {
-        //     return response()->json([
-        //         'status' => 401,
-        //         'message' => 'Unauthorized',
-        //     ], 401);
-        // }
+        $user = JWTAuth::user();
+        if (!$user) {
+            return response()->json([
+                'status' => 401,
+                'message' => 'Unauthorized',
+            ], 401);
+        }
 
         $roadmap = Roadmap::create([
             'prompt' => $request->input('prompt'),
             'title' => $request->response['title'],
-            // 'user_id' => $user->id,
-            'user_id' => 1,
+            'user_id' => $user->id,
+            // 'user_id' => 1,
         ]);
 
-        foreach($request->response['skills'] as $skill){
+        foreach ($request->response['skills'] as $skill) {
             $roadmap->roadmapSkills()->create([
                 'skill' => $skill['skill'],
                 'why' => $skill['why'],

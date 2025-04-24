@@ -13,7 +13,7 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/roadmap', [RoadmapController::class, 'generateRoadmap'])->name('roadmap.generateRoadmap');
-Route::post('/roadmap/store', [RoadmapController::class, 'store'])->name('roadmap.store');
+
 
 Route::post('/plan', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
 
@@ -25,4 +25,6 @@ Route::group(['prefix' => 'auth'], function(){
     Route::post('logout', [JwtAuthController::class, 'logout'])->middleware('jwtauthmiddleware');
     Route::post('refresh', [JwtAuthController::class, 'refresh']);
     Route::post('{provider}/callback', [SocialLoginController::class, 'socialLogin']);
+
+    Route::post('/roadmap/store', [RoadmapController::class, 'store'])->name('roadmap.store');
 });
