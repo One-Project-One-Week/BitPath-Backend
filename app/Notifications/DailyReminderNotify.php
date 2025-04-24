@@ -10,16 +10,14 @@ use Illuminate\Notifications\Notification;
 class DailyReminderNotify extends Notification
 {
     use Queueable;
-    // public $annid;
-    // public $title;
-    // public $content;
+    public $taskid;
+    public $title;
 
-    // public function __construct($id,$title,$content)
-    // {
-    //     // $this->annid = $id;
-    //     // $this->title = $title;
-    //     // $this->content = $content;
-    // }
+    public function __construct($id,$title)
+    {
+        $this->annid = $id;
+        $this->title = $title;
+    }
 
     public function via(object $notifiable): array
     {
@@ -31,8 +29,7 @@ class DailyReminderNotify extends Notification
     {
         return (new MailMessage)
                     ->greeting("Today is great day")
-                    // ->line($this->title)    
-                    // ->line($this->content)
+                    ->line($this->title)
                     ->line('Thank you for using our application!')
                     ->action('Visit Site', url('/'));
     }
