@@ -15,7 +15,10 @@ use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 
+<<<<<<< HEAD
+=======
 use App\Http\Resources\PlanResource;
+>>>>>>> 74705e19721e7345c527aadcccde73d781c10e37
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
