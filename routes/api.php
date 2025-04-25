@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\JwtAuthController;
 use App\Http\Controllers\Api\SocialLoginController;
+use App\Http\Controllers\Api\TasksController;
 use GuzzleHttp\Middleware;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\RoadmapController;
@@ -33,4 +34,7 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::get('/roadmap/{roadmap}', [RoadmapController::class, 'show'])->name('roadmap.show');
 
     Route::post('/plan', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
+    
+    Route::resource('/tasks',TasksController::class);
+
 });
