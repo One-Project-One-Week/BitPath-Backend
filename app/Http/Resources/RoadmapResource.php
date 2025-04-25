@@ -18,7 +18,7 @@ class RoadmapResource extends JsonResource
             'id' => $this->id,
             'prompt' => $this->prompt,
             'title' => $this->title,
-            'user_id' => $this->user_id,
+            // 'user_id' => $this->user_id,
             'created_user_id' => $this->created_user_id,
             'visibility' => $this->visibility,
             'skills' => RoadmapSkillResource::collection($this->whenLoaded('roadmapSkills')),
