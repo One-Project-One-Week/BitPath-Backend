@@ -45,7 +45,7 @@ class RoadmapPolicy
      */
     public function delete(User $user, Roadmap $roadmap): bool
     {
-        return $roadmap->created_user_id == $user->id;
+        return $user->roadmaps->contains($roadmap->id);
     }
 
     /**

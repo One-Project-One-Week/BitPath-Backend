@@ -223,10 +223,15 @@ class RoadmapController extends Controller
     public function destroy(Roadmap $roadmap)
     {
         $this->authorize('delete', $roadmap);
-        $roadmap->delete();
+        // $roadmap->delete();
+
+        /** @var User $user */
+        $user = Auth::user();
+        $roadmap->users()->detach($user->id);        
+
         return response()->json([
             'status' => 200,
-            'message' => 'Roadmap deleted successfully'
+            'message' => 'Roadmap leaved successfully'
         ]);
     }
 
