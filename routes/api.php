@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\JwtAuthController;
 use App\Http\Controllers\Api\SocialLoginController;
+use App\Http\Controllers\Api\TasksController;
 use GuzzleHttp\Middleware;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\RoadmapController;
@@ -39,7 +40,11 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::get('/roadmap/{roadmap}/skills/{skill}', [RoadmapController::class, 'getRoadmapSkill'])->name('roadmap.getRoadmapSkill');
 
     Route::post('/plan', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
+    
+    Route::resource('/tasks',TasksController::class);
+  
     // this is updating task as completed if user clicked complete a task
     Route::put('/tasks/{task}', [TaskController::class, 'updateTask'])->name('task.update');
     Route::put('/plans/{plan}', [PlanController::class, 'regeneratePlan'])->name('plan.regeneratePlan');
+
 });
