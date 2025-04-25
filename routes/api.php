@@ -51,7 +51,6 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
 
     Route::post('/plan', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
     
-    Route::resource('/tasks',TasksController::class);
   
     // this is updating task as completed if user clicked complete a task
     Route::put('/tasks/{task}', [TaskController::class, 'updateTask'])->name('task.update');

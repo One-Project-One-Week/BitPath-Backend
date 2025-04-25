@@ -21,7 +21,7 @@ class RoadmapPolicy
      */
     public function view(User $user, Roadmap $roadmap): bool
     {
-        return $roadmap->user_id == $user->id;
+        return $user->roadmaps->contains($roadmap->id);
     }
 
     /**
@@ -45,7 +45,7 @@ class RoadmapPolicy
      */
     public function delete(User $user, Roadmap $roadmap): bool
     {
-        return $roadmap->created_user_id == $user->id;
+        return $user->roadmaps->contains($roadmap->id);
     }
 
     /**
