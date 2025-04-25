@@ -141,6 +141,32 @@ class RoadmapController extends Controller
         ], 200);
     }
 
+    public function updateVisibility(Request $request, Roadmap $roadmap)
+    {
+        $validator = Validator::make($request->all(), [
+            'visibility' => 'required|string|in:public,private',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $this->authorize('update', $roadmap);
+
+        $roadmap->update([
+            'visibility' => $request->visibility,
+        ]);
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Roadmap visibility updated successfully'
+        ]);
+    }
+
     public function show(Roadmap $roadmap)
     {
         $this->authorize('view', $roadmap);
@@ -155,7 +181,9 @@ class RoadmapController extends Controller
     {
         $this->authorize('viewAny', Roadmap::class);
 
-        $roadmaps = Roadmap::select('id', 'title')->where('user_id', Auth::id())->get();
+        $roadmaps = Roadmap::select('id', 'title')
+            ->where('user_id', Auth::id())
+            ->orderBy('updated_at', 'desc')->get();
         return response()->json([
             'status' => 200,
             'roadmap' => $roadmaps,
@@ -193,7 +221,7 @@ class RoadmapController extends Controller
                 'message' => 'This skill does not belong to the specified roadmap.',
             ], 403);
         }
-        
+
         return response()->json([
             'status' => 200,
             'skill' => new RoadmapSkillResource($skill),

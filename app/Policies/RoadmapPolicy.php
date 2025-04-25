@@ -37,7 +37,7 @@ class RoadmapPolicy
      */
     public function update(User $user, Roadmap $roadmap): bool
     {
-        return false;
+        return $roadmap->user_id == $user->id;
     }
 
     /**

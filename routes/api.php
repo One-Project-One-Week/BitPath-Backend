@@ -36,6 +36,7 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::post('/roadmap/store', [RoadmapController::class, 'store'])->name('roadmap.store');
     Route::get('/roadmap/{roadmap}', [RoadmapController::class, 'show'])->name('roadmap.show');
     Route::delete('/roadmap/{roadmap}', [RoadmapController::class, 'destroy'])->name('roadmap.destroy');
+    Route::patch('/roadmap/{roadmap}/visibility', [RoadmapController::class, 'updateVisibility'])->name('roadmap.updateVisibility');
 
     Route::get('/roadmap/{roadmap}/skills', [RoadmapController::class, 'getRoadmapSkills'])->name('roadmap.getRoadmapSkills');
     Route::get('/roadmap/{roadmap}/skills/{skill}', [RoadmapController::class, 'getRoadmapSkill'])->name('roadmap.getRoadmapSkill');
