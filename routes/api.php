@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\RoadmapController;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Api\RecommandResourcesController;
 use App\Http\Controllers\Api\ResourcelinksController;
+use App\Http\Controllers\Api\TaskController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
@@ -30,11 +31,20 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::resource('/recommandresources',RecommandResourcesController::class);
     Route::resource('/resoucelinks',ResourcelinksController::class);
 
+    Route::get('/roadmaps', [RoadmapController::class, 'index'])->name('roadmap.index');
     Route::post('/roadmap/store', [RoadmapController::class, 'store'])->name('roadmap.store');
     Route::get('/roadmap/{roadmap}', [RoadmapController::class, 'show'])->name('roadmap.show');
+    Route::delete('/roadmap/{roadmap}', [RoadmapController::class, 'destroy'])->name('roadmap.destroy');
+
+    Route::get('/roadmap/{roadmap}/skills', [RoadmapController::class, 'getRoadmapSkills'])->name('roadmap.getRoadmapSkills');
+    Route::get('/roadmap/{roadmap}/skills/{skill}', [RoadmapController::class, 'getRoadmapSkill'])->name('roadmap.getRoadmapSkill');
 
     Route::post('/plan', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
     
     Route::resource('/tasks',TasksController::class);
+  
+    // this is updating task as completed if user clicked complete a task
+    Route::put('/tasks/{task}', [TaskController::class, 'updateTask'])->name('task.update');
+    Route::put('/plans/{plan}', [PlanController::class, 'regeneratePlan'])->name('plan.regeneratePlan');
 
 });
