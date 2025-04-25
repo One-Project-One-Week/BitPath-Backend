@@ -196,10 +196,14 @@ class RoadmapController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Roadmap::class);
-
-        $roadmaps = Roadmap::select('id', 'title')
-            ->where('user_id', Auth::id())
-            ->orderBy('updated_at', 'desc')->get();
+        
+        /** @var User $user */
+        $user = Auth::user();
+        $roadmaps = $user->roadmaps()
+            ->select('roadmaps.id', 'title')
+            ->orderBy('roadmaps.updated_at', 'desc')
+            ->get()
+            ->makeHidden('pivot');
         return response()->json([
             'status' => 200,
             'roadmap' => $roadmaps,
