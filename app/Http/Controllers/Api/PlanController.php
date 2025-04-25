@@ -49,7 +49,7 @@ class PlanController extends Controller
     {
 
         $tasks = $plan->tasks;
-        $plan_request = PlanRequest::where('skill_id', $plan->skill_id)->first();
+        $plan_request = PlanRequest::where('skill_id', $plan->planRequest->skill_id)->first();
 
         $tasks->each(function ($task) {
             $task->delete();
@@ -60,6 +60,12 @@ class PlanController extends Controller
             'type' => 'required|string',
         ]);
 
+        if ($request->type == 'deadline') {
+            $time = "for $request->days per day";
+        } else {
+            $time = "within EXACTLY $request->duration days";
+        }
+
         if ($validator->fails()) {
             return response()->json([
                 'status' => 422,
@@ -68,17 +74,13 @@ class PlanController extends Controller
             ], 422);
         }
 
-        $skill = RoadmapSkill::findOrFail($request->skill_id);
-        if ($request->type == 'deadline') {
-            $time = "for $request->days per day";
-        } else {
-            $time = "within EXACTLY $request->duration days";
-        }
-
-        $prompt = "Create a micro task planner for this roadmap in tripple backtip." .
-            $skill->toJson() .
-            "I want to study this EXACT roadmap" . $time .
-            "1. Respond ONLY in valid JSON format
+        $time = ($request->type == 'tpd') ? "for $request->duration per day." : "within EXACTLY $request->days days with 1 task per day.";
+        $skill = RoadmapSkill::without('recommandResource')->select('id', 'skill', 'why', 'level', 'roadmap_id')->findOrFail($request->skill_id);
+        
+        $prompt = "Create a micro task planner for this skill in tripple square brackets. ONLY FOR SKILL.DO NOT INCLUDED RELATED SKILLS. " .
+            "[[[" . $skill->toJson() . "]]]" .
+            " I want to study this EXACT skill " . $time .
+            " 1. Respond ONLY in valid JSON format
                 2. The response should be an array of objects
                 3. Each object should have exactly these properties:
                     - topic : 'Topic of the task',
