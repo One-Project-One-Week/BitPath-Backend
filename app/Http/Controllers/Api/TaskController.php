@@ -13,7 +13,7 @@ use Psy\TabCompletion\Matcher\FunctionsMatcher;
 class TaskController extends Controller
 {
     public function updateTask(Task $task){
-
+        $user = Auth::user();
         // getting a plan of a task
         $plan = $task->plan;
 
@@ -34,30 +34,42 @@ class TaskController extends Controller
             'completed_tasks' => $plan->completed_tasks + 1,
         ]);
 
-
-        
         if($plan->completed_tasks == $plan->total_tasks){
             $plan->update([
                 'is_finished' => true,
             ]);
         }
 
-        // updating user table's streak by one
-        $user = Auth::user();
-
         $last_studied_date = $user->last_studied_date;
-        $current_date = now()->format('Y-m-d');
-    
+        $current_date = now();
         $day_diff = $last_studied_date->diffInDays($current_date);
-        // $user->update([
-        //     'current_streak' => $user->current_streak + 1,
-        //     'last_studied_date' => now()->format('Y-m-d'),
-        // ]);
+
+        if(1 < 1){
+            $user->update([
+                'current_streak' => $user->current_streak + 1,
+                'last_studied_date' => now(),
+            ]);
+        }else{
+            $user->update([
+                'current_streak' => 1,
+                'last_studied_date' => now(),
+            ]);
+        }
+
+        $longest_streak = $user->longest_streak;
+        $current_streak = $user->current_streak;
+
+        if($current_streak > $longest_streak){
+            $longest_streak = $current_streak;
+            $user->update([
+                'longest_streak' => $longest_streak,
+            ]);
+        }   
 
         return response()->json([
             'status' => 200,
             'message' => 'Task updated successfully',
-            'task' => $day_diff,
+            'task' => $user,
         ]);
     }
 }

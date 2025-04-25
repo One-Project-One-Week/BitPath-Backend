@@ -20,7 +20,6 @@ class PlanResource extends JsonResource
             'total_tasks' => $this->total_tasks,
             'completed_tasks' => $this->completed_tasks,
             'skill_name' =>  optional($this->planRequest)->roadmapSkill->skill,
-            // ],
         ];
     }
 }

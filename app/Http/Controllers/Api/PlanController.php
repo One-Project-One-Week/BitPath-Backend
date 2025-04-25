@@ -28,12 +28,7 @@ class PlanController extends Controller
             $query->where('user_id', Auth::id());
         })->get();
 
-        $skill_names = [];
         $plan_resources = PlanResource::collection($plans);
-
-        // foreach($plan_resources as $plan_resource){
-        //     $skill_names[] = RoadmapSkill::where('id', $plan_resource->plan_request->skill_id)->select('skill')->first();
-        // }
         return response()->json([
             'status' => 200,
             'message' => 'Plans retrieved successfully',
