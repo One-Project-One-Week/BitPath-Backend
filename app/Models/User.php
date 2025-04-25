@@ -70,7 +70,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function roadmaps()
     {
-        return $this->hasMany(Roadmap::class);
+        return $this->belongsToMany(Roadmap::class)->withTimestamps();
     }
 
     public function planParticipants()

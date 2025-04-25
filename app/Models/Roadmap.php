@@ -19,9 +19,9 @@ class Roadmap extends Model
 
     // protected $with = ['roadmapSkills'];
 
-    public function user()
+    public function users()
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsToMany(User::class)->withTimestamps();
     }
 
     public function createdUser()
