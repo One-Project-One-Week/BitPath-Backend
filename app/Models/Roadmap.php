@@ -12,7 +12,9 @@ class Roadmap extends Model
     protected $fillable = [
         'prompt',
         'title',
-        'user_id'
+        'user_id',
+        'created_user_id',
+        'visibility',
     ];
 
     // protected $with = ['roadmapSkills'];
@@ -20,6 +22,11 @@ class Roadmap extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function createdUser()
+    {
+        return $this->belongsTo(User::class, 'created_user_id');
     }
 
     public function roadmapSkills()
