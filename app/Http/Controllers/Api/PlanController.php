@@ -15,6 +15,7 @@ use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\PlanResource;
+use App\Http\Resources\EachPlanResource;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
@@ -37,11 +38,13 @@ class PlanController extends Controller
 
     public function show($id)
     {
-        $plan = Plan::where('id', $id)->with(['tasks', 'planRequest'])->get();
+        $plan = Plan::find($id);
+
+        $plan_resources = new EachPlanResource($plan);
         return response()->json([
                 'status' => 200,
                 'message' => 'Plans retrieved successfully',
-                'plan' => $plan,
+                'plan' => $plan_resources,
         ], 200 );
     }
 
@@ -170,7 +173,7 @@ class PlanController extends Controller
 
         $time = ($request->type == 'tpd') ? "for $request->duration per day." : "within EXACTLY $request->days days with 1 task per day.";
         $skill = RoadmapSkill::without('recommandResource')->select('id', 'skill', 'why', 'level', 'roadmap_id')->findOrFail($request->skill_id);
-        
+
         $prompt = "Create a micro task planner for this skill in tripple square brackets. ONLY FOR SKILL.DO NOT INCLUDED RELATED SKILLS. " .
             "[[[" . $skill->toJson() . "]]]" .
             " I want to study this EXACT skill " . $time .
@@ -182,7 +185,7 @@ class PlanController extends Controller
                     - dayNumber : 'Day number of the task start from 1 and increase one per row',
             Include all skills following a logical progression.
             Your response should be a raw JSON array with NO markdown formatting, code blocks, or explanatory text.";
-        
+
         $config = new GenerationConfig(
             temperature: 0.1
         );
