@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\RecommandResourcesController;
 use App\Http\Controllers\Api\ResourcelinksController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\LeaderboardController;
+use App\Models\PlanRequest;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
@@ -55,5 +56,8 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     // this is updating task as completed if user clicked complete a task
     Route::put('/tasks/{task}', [TaskController::class, 'updateTask'])->name('task.update');
     Route::put('/plans/{plan}', [PlanController::class, 'regeneratePlan'])->name('plan.regeneratePlan');
+
+    Route::get('plans', [PlanController::class, 'index'])->name('plan.index');
+    Route::get('plans/{plan}', [PlanController::class, 'show']);
 
 });
