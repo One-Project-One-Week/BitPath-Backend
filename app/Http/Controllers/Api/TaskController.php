@@ -17,6 +17,10 @@ class TaskController extends Controller
         // getting a plan of a task
         $plan = $task->plan;
 
+        $user->update([
+            'last_studied_date' => now(),
+        ]);
+
         // updating a task as completed
         if($task->is_finished == false){
             $task->update([
@@ -69,7 +73,7 @@ class TaskController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'Task updated successfully',
-            'task' => $user,
+            'task' => $task,
         ]);
     }
 }
