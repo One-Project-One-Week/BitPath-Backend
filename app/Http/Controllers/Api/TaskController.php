@@ -44,7 +44,7 @@ class TaskController extends Controller
         $current_date = now();
         $day_diff = $last_studied_date->diffInDays($current_date);
 
-        if(1 < 1){
+        if($day_diff < 1){
             $user->update([
                 'current_streak' => $user->current_streak + 1,
                 'last_studied_date' => now(),
