@@ -122,7 +122,7 @@ class JwtAuthController extends Controller
         if(!$user){
             return response()->json([
                 'statusCode' => 401,
-                'message' => 'Invalid refresh token',
+                'message' => 'unthorized',
             ], 401);
         }
         
