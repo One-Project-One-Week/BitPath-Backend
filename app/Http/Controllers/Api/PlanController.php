@@ -2,20 +2,20 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Plan;
-use App\Models\PlanRequest;
-use App\Models\Roadmap;
-use App\Models\RoadmapSkill;
 use App\Models\Task;
 use App\Models\User;
-use Gemini\Data\GenerationConfig;
+use App\Models\Roadmap;
+use App\Models\PlanRequest;
 use Gemini\Enums\ModelType;
-use Gemini\Laravel\Facades\Gemini;
+use App\Models\RoadmapSkill;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
+use Gemini\Data\GenerationConfig;
+use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PlanController extends Controller

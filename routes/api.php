@@ -38,8 +38,9 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::get('/roadmap/{roadmap}/skills', [RoadmapController::class, 'getRoadmapSkills'])->name('roadmap.getRoadmapSkills');
     Route::get('/roadmap/{roadmap}/skills/{skill}', [RoadmapController::class, 'getRoadmapSkill'])->name('roadmap.getRoadmapSkill');
 
-    Route::post('/plan', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
+    Route::post('/plans', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
     // this is updating task as completed if user clicked complete a task
     Route::put('/tasks/{task}', [TaskController::class, 'updateTask'])->name('task.update');
     Route::put('/plans/{plan}', [PlanController::class, 'regeneratePlan'])->name('plan.regeneratePlan');
+    // Route::get('plans', [PlanController::class, 'index'])->name('plan.index');
 });
