@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use App\Models\Plan;
-use App\Models\PlanRequest;
-use App\Models\Roadmap;
-use App\Models\RoadmapSkill;
 use App\Models\Task;
 use App\Models\User;
-use Gemini\Data\GenerationConfig;
+use App\Models\Roadmap;
+use App\Models\PlanRequest;
 use Gemini\Enums\ModelType;
-use Gemini\Laravel\Facades\Gemini;
+use App\Models\RoadmapSkill;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-
+use Gemini\Data\GenerationConfig;
+use Gemini\Laravel\Facades\Gemini;
 use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+
+use App\Http\Resources\PlanResource;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
 class PlanController extends Controller
@@ -23,11 +24,20 @@ class PlanController extends Controller
 
     public function index()
     {
-        $plan_requests = PlanRequest::where('user_id', auth()->user()->id)->with('plan')->get();
+        $plans = Plan::whereHas('planRequest', function($query){
+            $query->where('user_id', Auth::id());
+        })->get();
+
+        $skill_names = [];
+        $plan_resources = PlanResource::collection($plans);
+
+        // foreach($plan_resources as $plan_resource){
+        //     $skill_names[] = RoadmapSkill::where('id', $plan_resource->plan_request->skill_id)->select('skill')->first();
+        // }
         return response()->json([
             'status' => 200,
             'message' => 'Plans retrieved successfully',
-            'planRequests' => $plan_requests,
+            'plans' => $plan_resources,
         ]);
     }
 
