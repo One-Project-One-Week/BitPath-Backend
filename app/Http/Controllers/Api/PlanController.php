@@ -21,7 +21,8 @@ use Illuminate\Support\Facades\Validator;
 class PlanController extends Controller
 {
 
-    public function regeneratePlan(Request $request, Plan $plan){
+    public function regeneratePlan(Request $request, Plan $plan)
+    {
 
         $tasks = $plan->tasks;
         $plan_request = PlanRequest::where('skill_id', $plan->skill_id)->first();
@@ -93,14 +94,13 @@ class PlanController extends Controller
             'days' => $request->days,
         ]);
 
-         $plan->update([
-            'skill_id' => $skill->id,
+        $plan->update([
             'is_finished' => false,
             'total_tasks' => $total_tasks,
             'completed_tasks' => 0,
         ]);
 
-        foreach($response_json as $task){
+        foreach ($response_json as $task) {
             Task::create([
                 'plan_id' => $plan->id,
                 'is_finished' => false,
@@ -115,7 +115,7 @@ class PlanController extends Controller
             'message' => 'Plan regenerated successfully',
             'total_tasks' => $total_tasks,
             'plan' => $response_json,
-        ], 200 );
+        ], 200);
     }
 
 
@@ -144,13 +144,13 @@ class PlanController extends Controller
             ], 422);
         }
 
-        $time = ($request->type == 'deadline') ? "for $request->days per day" : "within EXACTLY $request->duration days";
-        $skill = RoadmapSkill::findOrFail($request->skill_id);
-
-        $prompt = "Create a micro task planner for this roadmap in tripple backtip." .
-            $skill->toJson() .
-            "I want to study this EXACT roadmap" . $time .
-            "1. Respond ONLY in valid JSON format
+        $time = ($request->type == 'tpd') ? "for $request->duration per day." : "within EXACTLY $request->days days with 1 task per day.";
+        $skill = RoadmapSkill::without('recommandResource')->select('id', 'skill', 'why', 'level', 'roadmap_id')->findOrFail($request->skill_id);
+        
+        $prompt = "Create a micro task planner for this skill in tripple square brackets. ONLY FOR SKILL.DO NOT INCLUDED RELATED SKILLS. " .
+            "[[[" . $skill->toJson() . "]]]" .
+            " I want to study this EXACT skill " . $time .
+            " 1. Respond ONLY in valid JSON format
                 2. The response should be an array of objects
                 3. Each object should have exactly these properties:
                     - topic : 'Topic of the task',
@@ -158,7 +158,7 @@ class PlanController extends Controller
                     - dayNumber : 'Day number of the task start from 1 and increase one per row',
             Include all skills following a logical progression.
             Your response should be a raw JSON array with NO markdown formatting, code blocks, or explanatory text.";
-
+        
         $config = new GenerationConfig(
             temperature: 0.1
         );
@@ -183,7 +183,7 @@ class PlanController extends Controller
             ], 401);
         }
 
-        PlanRequest::create([
+        $plan_request = PlanRequest::create([
             'user_id' => $user->id,
             'skill_id' => $skill->id,
             'type' => $request->type,
@@ -192,7 +192,7 @@ class PlanController extends Controller
         ]);
 
         $plan = Plan::create([
-            'skill_id' => $skill->id,
+            'request_id' => $plan_request->id,
             'is_finished' => false,
             'total_tasks' => $total_tasks,
             'completed_tasks' => 0,
