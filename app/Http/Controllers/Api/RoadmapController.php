@@ -144,6 +144,7 @@ class RoadmapController extends Controller
     public function show(Roadmap $roadmap)
     {
         $this->authorize('view', $roadmap);
+        $roadmap->load('roadmapSkills');
         return response()->json([
             'status' => 200,
             'roadmap' => new RoadmapResource($roadmap),
@@ -157,7 +158,7 @@ class RoadmapController extends Controller
         $roadmaps = Roadmap::select('id', 'title')->where('user_id', Auth::id())->get();
         return response()->json([
             'status' => 200,
-            'roadmap' => RoadmapResource::collection($roadmaps),
+            'roadmap' => $roadmaps,
         ]);
     }
 

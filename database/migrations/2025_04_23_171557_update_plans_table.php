@@ -17,7 +17,7 @@ return new class extends Migration
             // drop column
             $table->dropColumn('roadmap_id');
 
-            $table->foreignId('skill_id')->after('id')->constrained('roadmap_skills')->onDelete('cascade');
+            $table->foreignId('request_id')->after('id')->constrained('plan_requests')->onDelete('cascade');
         });
     }
 
@@ -29,8 +29,8 @@ return new class extends Migration
         Schema::table('plans', function (Blueprint $table) {
             $table->foreignId('roadmap_id')->constrained('roadmaps')->onDelete('cascade');
 
-            $table->dropForeign(['skill_id']);
-            $table->dropColumn('skill_id');
+            $table->dropForeign(['request_id']);
+            $table->dropColumn('request_id');
         });
     }
 };

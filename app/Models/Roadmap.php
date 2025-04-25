@@ -15,7 +15,7 @@ class Roadmap extends Model
         'user_id'
     ];
 
-    protected $with = ['roadmapSkills'];
+    // protected $with = ['roadmapSkills'];
 
     public function user()
     {
@@ -24,6 +24,6 @@ class Roadmap extends Model
 
     public function roadmapSkills()
     {
-        return $this->hasMany(RoadmapSkill::class);
+        return $this->hasMany(RoadmapSkill::class, 'roadmap_id');
     }
 }
