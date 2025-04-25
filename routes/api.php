@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\Api\RecommandResourcesController;
 use App\Http\Controllers\Api\ResourcelinksController;
 use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\LeaderboardController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/user', function (Request $request) {
@@ -17,6 +18,8 @@ Route::get('/user', function (Request $request) {
 })->middleware('auth:sanctum');
 
 Route::post('/roadmap', [RoadmapController::class, 'generateRoadmap'])->name('roadmap.generateRoadmap');
+
+Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
 Route::group(['prefix' => 'auth'], function(){
     Route::post('signup', [JwtAuthController::class, 'register']);
