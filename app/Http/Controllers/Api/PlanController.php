@@ -21,6 +21,26 @@ use Illuminate\Support\Facades\Validator;
 class PlanController extends Controller
 {
 
+    public function index()
+    {
+        $plan_requests = PlanRequest::where('user_id', auth()->user()->id)->with('plan')->get();
+        return response()->json([
+            'status' => 200,
+            'message' => 'Plans retrieved successfully',
+            'planRequests' => $plan_requests,
+        ]);
+    }
+
+    public function show($id)
+    {
+        $plan = Plan::where('id', $id)->with(['tasks', 'planRequest'])->get();
+        return response()->json([
+                'status' => 200,
+                'message' => 'Plans retrieved successfully',
+                'plan' => $plan,
+        ], 200 );
+    }
+
     public function regeneratePlan(Request $request, Plan $plan)
     {
 
