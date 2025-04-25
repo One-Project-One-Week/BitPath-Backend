@@ -37,6 +37,11 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::delete('/roadmap/{roadmap}', [RoadmapController::class, 'destroy'])->name('roadmap.destroy');
     Route::patch('/roadmap/{roadmap}/visibility', [RoadmapController::class, 'updateVisibility'])->name('roadmap.updateVisibility');
 
+    Route::get('/shared-roadmaps', [RoadmapController::class, 'getSharedRoadmaps'])->name('roadmap.getSharedRoadmaps');
+    Route::get('/shared-roadmaps/{roadmap}', [RoadmapController::class, 'showSharedRoadmap'])->name('roadmap.showSharedRoadmap');
+    Route::get('/shared-roadmaps/{roadmap}/participants', [RoadmapController::class, 'getSharedRoadmapParticipants'])->name('roadmap.getSharedRoadmapParticipants');
+    Route::post('/shared-roadmaps/{roadmap}/join', [RoadmapController::class, 'joinRoadmap'])->name('roadmap.joinRoadmap');
+
     Route::get('/roadmap/{roadmap}/skills', [RoadmapController::class, 'getRoadmapSkills'])->name('roadmap.getRoadmapSkills');
     Route::get('/roadmap/{roadmap}/skills/{skill}', [RoadmapController::class, 'getRoadmapSkill'])->name('roadmap.getRoadmapSkill');
 

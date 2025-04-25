@@ -37,7 +37,7 @@ class RoadmapPolicy
      */
     public function update(User $user, Roadmap $roadmap): bool
     {
-        return $roadmap->user_id == $user->id;
+        return $roadmap->created_user_id == $user->id;
     }
 
     /**
@@ -45,7 +45,7 @@ class RoadmapPolicy
      */
     public function delete(User $user, Roadmap $roadmap): bool
     {
-        return $roadmap->user_id == $user->id;
+        return $roadmap->created_user_id == $user->id;
     }
 
     /**
@@ -62,5 +62,10 @@ class RoadmapPolicy
     public function forceDelete(User $user, Roadmap $roadmap): bool
     {
         return false;
+    }
+
+    public function canViewPublic(User $user = null, Roadmap $roadmap): bool
+    {
+        return $roadmap->visibility === 'public';
     }
 }

@@ -99,6 +99,7 @@ class RoadmapController extends Controller
             ], 422);
         }
 
+        /** @var User $user */
         $user = Auth::user();
         if (!$user) {
             return response()->json([
@@ -110,8 +111,12 @@ class RoadmapController extends Controller
         $roadmap = Roadmap::create([
             'prompt' => $request->input('prompt'),
             'title' => $request->response['title'],
-            'user_id' => $user->id,
+            // 'user_id' => $user->id,
+            'created_user_id' => $user->id,
+            'visibility' => 'private',
         ]);
+
+        $user->roadmaps()->attach($roadmap->id);
 
         foreach ($request->response['skills'] as $skill) {
             $roadmap_skill = RoadmapSkill::create([
@@ -167,13 +172,24 @@ class RoadmapController extends Controller
         ]);
     }
 
-    public function show(Roadmap $roadmap)
+    public function joinRoadmap(Roadmap $roadmap)
     {
-        $this->authorize('view', $roadmap);
-        $roadmap->load('roadmapSkills');
+        $this->authorize('canViewPublic', $roadmap);
+
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user->roadmaps->contains($roadmap->id)) {
+            $user->roadmaps()->attach($roadmap->id);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Roadmap joined successfully'
+            ]);
+        }
+
         return response()->json([
-            'status' => 200,
-            'roadmap' => new RoadmapResource($roadmap),
+            'status' => 400,
+            'message' => 'You have already joined this roadmap'
         ]);
     }
 
@@ -190,6 +206,16 @@ class RoadmapController extends Controller
         ]);
     }
 
+    public function show(Roadmap $roadmap)
+    {
+        $this->authorize('view', $roadmap);
+        $roadmap->load('roadmapSkills');
+        return response()->json([
+            'status' => 200,
+            'roadmap' => new RoadmapResource($roadmap),
+        ]);
+    }
+
     public function destroy(Roadmap $roadmap)
     {
         $this->authorize('delete', $roadmap);
@@ -197,6 +223,45 @@ class RoadmapController extends Controller
         return response()->json([
             'status' => 200,
             'message' => 'Roadmap deleted successfully'
+        ]);
+    }
+
+    public function getSharedRoadmaps()
+    {
+        $this->authorize('viewAny', Roadmap::class);
+
+        $roadmaps = Roadmap::select('id', 'title')
+            ->where('visibility', 'public')
+            ->orderBy('updated_at', 'desc')->get();
+        return response()->json([
+            'status' => 200,
+            'roadmap' => $roadmaps,
+        ]);
+    }
+
+    public function showSharedRoadmap(Roadmap $roadmap)
+    {
+        $this->authorize('canViewPublic', $roadmap);
+
+        $roadmap->load('roadmapSkills');
+
+        return response()->json([
+            'status' => 200,
+            'roadmap' => new RoadmapResource($roadmap),
+        ]);
+    }
+
+    public function getSharedRoadmapParticipants(Roadmap $roadmap)
+    {
+        $this->authorize('canViewPublic', $roadmap);
+
+        $participants = $roadmap->users()
+            ->select('users.id', 'name', 'longest_streak', 'current_streak', 'last_studied_date')
+            ->get()->makeHidden('pivot');
+
+        return response()->json([
+            'status' => 200,
+            'roadmap' => $participants,
         ]);
     }
 
