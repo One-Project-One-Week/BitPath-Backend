@@ -20,8 +20,8 @@ return new class extends Migration
             $table->enum('role', ['admin', 'user'])->default('user');
             $table->string('refresh_token');
             $table->string('profile_picture')->nullable();
-            $table->string("longest_streak")->default(0);
-            $table->string("current_streak")->default(0);
+            $table->integer("longest_streak")->default(0);
+            $table->integer("current_streak")->default(0);
             $table->date('last_studied_date')->nullable();
             $table->string("provider")->nullable()->default('simple');
             $table->string("provider_id")->nullable();
