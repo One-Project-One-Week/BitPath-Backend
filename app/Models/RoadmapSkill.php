@@ -11,6 +11,7 @@ class RoadmapSkill extends Model
         'skill',
         'why',
         'duration',
+        'level',
         'recommended_resource',
     ];
 
@@ -18,12 +19,7 @@ class RoadmapSkill extends Model
 
     public function roadmap()
     {
-        return $this->belongsTo(roadmap::class);
-    }
-
-    public function plan()
-    {
-        return $this->hasOne(Plan::class, 'skill_id');
+        return $this->belongsTo(Roadmap::class);
     }
 
     public function planRequest()

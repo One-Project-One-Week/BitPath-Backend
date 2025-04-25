@@ -12,11 +12,13 @@ class DailyReminderNotify extends Notification
     use Queueable;
     public $taskid;
     public $title;
+    public $tasks;
 
-    public function __construct($id,$title)
+    public function __construct($id,$title,$tasks)
     {
-        $this->annid = $id;
+        $this->taskid = $id;
         $this->title = $title;
+        $this->tasks = $tasks;
     }
 
     public function via(object $notifiable): array
@@ -28,10 +30,9 @@ class DailyReminderNotify extends Notification
     public function toMail(object $notifiable): MailMessage
     {
         return (new MailMessage)
-                    ->greeting("Today is great day")
-                    ->line($this->title)
-                    ->line('Thank you for using our application!')
-                    ->action('Visit Site', url('/'));
+                    ->greeting($this->title)
+                    ->line("Today task  = {$this->tasks}")
+                    ->line('Thank you for using our application!');
     }
 
     public function toArray(object $notifiable): array

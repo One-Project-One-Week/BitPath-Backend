@@ -2,26 +2,26 @@
 
 namespace App\Policies;
 
-use App\Models\Plan;
+use App\Models\Roadmap;
 use App\Models\User;
 use Illuminate\Auth\Access\Response;
 
-class PlanPolicy
+class RoadmapPolicy
 {
     /**
      * Determine whether the user can view any models.
      */
     public function viewAny(User $user): bool
     {
-        return false;
+        return true;
     }
 
     /**
      * Determine whether the user can view the model.
      */
-    public function view(User $user, Plan $plan): bool
+    public function view(User $user, Roadmap $roadmap): bool
     {
-        return false;
+        return $user->roadmaps->contains($roadmap->id);
     }
 
     /**
@@ -29,35 +29,29 @@ class PlanPolicy
      */
     public function create(User $user): bool
     {
-<<<<<<< HEAD
-=======
         return false;
->>>>>>> 74705e19721e7345c527aadcccde73d781c10e37
     }
 
     /**
      * Determine whether the user can update the model.
      */
-    public function update(User $user, Plan $plan): bool
+    public function update(User $user, Roadmap $roadmap): bool
     {
-<<<<<<< HEAD
-=======
-        return false;
->>>>>>> 74705e19721e7345c527aadcccde73d781c10e37
+        return $roadmap->created_user_id == $user->id;
     }
 
     /**
      * Determine whether the user can delete the model.
      */
-    public function delete(User $user, Plan $plan): bool
+    public function delete(User $user, Roadmap $roadmap): bool
     {
-        return false;
+        return $user->roadmaps->contains($roadmap->id);
     }
 
     /**
      * Determine whether the user can restore the model.
      */
-    public function restore(User $user, Plan $plan): bool
+    public function restore(User $user, Roadmap $roadmap): bool
     {
         return false;
     }
@@ -65,8 +59,13 @@ class PlanPolicy
     /**
      * Determine whether the user can permanently delete the model.
      */
-    public function forceDelete(User $user, Plan $plan): bool
+    public function forceDelete(User $user, Roadmap $roadmap): bool
     {
         return false;
+    }
+
+    public function canViewPublic(User $user = null, Roadmap $roadmap): bool
+    {
+        return $roadmap->visibility === 'public';
     }
 }

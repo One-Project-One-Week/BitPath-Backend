@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Http\Resources\RoadmapResource;
+use App\Http\Resources\RoadmapSkillResource;
 use App\Models\RecommandResource;
 use App\Models\Resourcelink;
 use App\Models\Roadmap;
@@ -18,8 +20,11 @@ use Illuminate\Support\Facades\Validator;
 use Tymon\JWTAuth\Claims\JwtId;
 use Tymon\JWTAuth\Facades\JWTAuth;
 
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+
 class RoadmapController extends Controller
 {
+    use AuthorizesRequests;
     public function generateRoadmap(Request $request)
     {
         $validator = Validator::make($request->all(), [
@@ -94,6 +99,7 @@ class RoadmapController extends Controller
             ], 422);
         }
 
+        /** @var User $user */
         $user = Auth::user();
         if (!$user) {
             return response()->json([
@@ -105,8 +111,12 @@ class RoadmapController extends Controller
         $roadmap = Roadmap::create([
             'prompt' => $request->input('prompt'),
             'title' => $request->response['title'],
-            'user_id' => $user->id,
+            // 'user_id' => $user->id,
+            'created_user_id' => $user->id,
+            'visibility' => 'private',
         ]);
+
+        $user->roadmaps()->attach($roadmap->id);
 
         foreach ($request->response['skills'] as $skill) {
             $roadmap_skill = RoadmapSkill::create([
@@ -136,55 +146,159 @@ class RoadmapController extends Controller
         ], 200);
     }
 
-    public function show(Roadmap $roadmap)
+    public function updateVisibility(Request $request, Roadmap $roadmap)
     {
+        $validator = Validator::make($request->all(), [
+            'visibility' => 'required|string|in:public,private',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 422,
+                'message' => 'Validation failed',
+                'errors' => $validator->errors()
+            ], 422);
+        }
+
+        $this->authorize('update', $roadmap);
+
+        $roadmap->update([
+            'visibility' => $request->visibility,
+        ]);
+
         return response()->json([
             'status' => 200,
-            'roadmap' => $roadmap->load('roadmapSkills'),
+            'message' => 'Roadmap visibility updated successfully'
+        ]);
+    }
+
+    public function joinRoadmap(Roadmap $roadmap)
+    {
+        $this->authorize('canViewPublic', $roadmap);
+
+        /** @var User $user */
+        $user = Auth::user();
+        if (!$user->roadmaps->contains($roadmap->id)) {
+            $user->roadmaps()->attach($roadmap->id);
+
+            return response()->json([
+                'status' => 200,
+                'message' => 'Roadmap joined successfully'
+            ]);
+        }
+
+        return response()->json([
+            'status' => 400,
+            'message' => 'You have already joined this roadmap'
         ]);
     }
 
     public function index()
     {
+        $this->authorize('viewAny', Roadmap::class);
+        
+        /** @var User $user */
         $user = Auth::user();
-        if (!$user) {
-            return response()->json([
-                'status' => 401,
-                'message' => 'Unauthorized',
-            ], 401);
-        }
-
-        $roadmaps = Roadmap::select('id', 'title')->where('user_id', $user->id)->get();
+        $roadmaps = $user->roadmaps()
+            ->select('roadmaps.id', 'title')
+            ->orderBy('roadmaps.updated_at', 'desc')
+            ->get()
+            ->makeHidden('pivot');
         return response()->json([
             'status' => 200,
             'roadmap' => $roadmaps,
         ]);
     }
 
-    public function destroy(Roadmap $roadmap)
+    public function show(Roadmap $roadmap)
     {
-        $roadmap->delete();
+        $this->authorize('view', $roadmap);
+        $roadmap->load('roadmapSkills');
         return response()->json([
             'status' => 200,
-            'message' => 'Roadmap deleted successfully'
+            'roadmap' => new RoadmapResource($roadmap),
+        ]);
+    }
+
+    public function destroy(Roadmap $roadmap)
+    {
+        $this->authorize('delete', $roadmap);
+        // $roadmap->delete();
+
+        /** @var User $user */
+        $user = Auth::user();
+        $roadmap->users()->detach($user->id);        
+
+        return response()->json([
+            'status' => 200,
+            'message' => 'Roadmap leaved successfully'
+        ]);
+    }
+
+    public function getSharedRoadmaps()
+    {
+        $this->authorize('viewAny', Roadmap::class);
+
+        $roadmaps = Roadmap::select('id', 'title')
+            ->where('visibility', 'public')
+            ->orderBy('updated_at', 'desc')->get();
+        return response()->json([
+            'status' => 200,
+            'roadmap' => $roadmaps,
+        ]);
+    }
+
+    public function showSharedRoadmap(Roadmap $roadmap)
+    {
+        $this->authorize('canViewPublic', $roadmap);
+
+        $roadmap->load('roadmapSkills');
+
+        return response()->json([
+            'status' => 200,
+            'roadmap' => new RoadmapResource($roadmap),
+        ]);
+    }
+
+    public function getSharedRoadmapParticipants(Roadmap $roadmap)
+    {
+        $this->authorize('canViewPublic', $roadmap);
+
+        $participants = $roadmap->users()
+            ->select('users.id', 'name', 'longest_streak', 'current_streak', 'last_studied_date')
+            ->get()->makeHidden('pivot');
+
+        return response()->json([
+            'status' => 200,
+            'roadmap' => $participants,
         ]);
     }
 
     public function getRoadmapSkills(Roadmap $roadmap)
     {
+        $this->authorize('view', $roadmap);
+
         $skills = RoadmapSkill::where('roadmap_id', $roadmap->id)->get();
         return response()->json([
             'status' => 200,
-            'skills' => $skills,
+            'skills' => RoadmapSkillResource::collection($skills),
         ]);
     }
 
     public function getRoadmapSkill(Roadmap $roadmap, RoadmapSkill $skill)
     {
-        $skill = RoadmapSkill::where('roadmap_id', $roadmap->id)->where('id', $skill->id)->first();
+        $this->authorize('view', $roadmap);
+
+        if ($skill->roadmap_id !== $roadmap->id) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'This skill does not belong to the specified roadmap.',
+            ], 403);
+        }
+
         return response()->json([
             'status' => 200,
-            'skill' => $skill,
+            'skill' => new RoadmapSkillResource($skill),
         ]);
     }
 }

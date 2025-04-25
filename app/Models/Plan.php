@@ -7,17 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 class Plan extends Model
 {
     protected $fillable = [
-        'skill_id',
+        'request_id',
         'is_finished',
         'total_tasks',
         'completed_tasks'
     ];
 
-    public function roadmapSkill()
+    public function planRequest()
     {
-        return $this->belongsTo(RoadmapSkill::class, 'skill_id');
+        return $this->belongsTo(PlanRequest::class, 'request_id');
     }
-    
 
     public function planParticipants()
     {

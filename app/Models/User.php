@@ -62,15 +62,17 @@ class User extends Authenticatable implements JWTSubject
      */
     protected function casts(): array
     {
+
         return [
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'last_studied_date' => 'datetime',
         ];
     }
 
     public function roadmaps()
     {
-        return $this->hasMany(Roadmap::class);
+        return $this->belongsToMany(Roadmap::class)->withTimestamps();
     }
 
     public function planParticipants()
