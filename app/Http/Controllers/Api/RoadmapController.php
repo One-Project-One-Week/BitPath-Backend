@@ -276,8 +276,6 @@ class RoadmapController extends Controller
 
     public function getSharedRoadmaps()
     {
-        $this->authorize('viewAny', Roadmap::class);
-
         $roadmaps = Roadmap::with('roadmapSkills:id,roadmap_id,skill,duration')
             ->select('roadmaps.id', 'roadmaps.title')
             ->where('roadmaps.visibility', 'public')
