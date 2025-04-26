@@ -60,5 +60,6 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function () {
     Route::get('plans', [PlanController::class, 'index'])->name('plan.index');
     Route::get('plans/{plan}', [PlanController::class, 'show']);
 
-    Route::patch('/quizquestions/{quizQuestion}', [QuizQuestionController::class, 'update'])->name(name: 'quizquestion.update');
+    Route::get('/quizzes/{skill}', [QuizQuestionController::class, 'index'])->name(name: 'quizquestion.index');
+    Route::patch('/quizzes', [QuizQuestionController::class, 'update'])->name(name: 'quizquestion.update');
 });

@@ -23,6 +23,6 @@ class PlanQuiz extends Model
 
     public function quizQuestions()
     {
-        return $this->hasMany(QuizQuestion::class);
+        return $this->hasMany(QuizQuestion::class, 'quiz_id');
     }
 }
