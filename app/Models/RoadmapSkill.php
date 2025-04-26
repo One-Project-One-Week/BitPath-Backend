@@ -31,4 +31,9 @@ class RoadmapSkill extends Model
     {
         return $this->hasOne(RecommandResource::class, 'skill_id');
     }
+
+    public function planQuizzes()
+    {
+        return $this->hasMany(PlanQuiz::class);
+    }
 }

@@ -8,7 +8,7 @@ class PlanQuiz extends Model
 {
     protected $fillable = [
         'user_id',
-        'plan_id',
+        'skill_id',
     ];
 
     public function user()
@@ -16,9 +16,9 @@ class PlanQuiz extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function plan()
+    public function skill()
     {
-        return $this->belongsTo(Plan::class);
+        return $this->belongsTo(RoadmapSkill::class,'skill_id');
     }
 
     public function quizQuestions()

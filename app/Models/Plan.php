@@ -13,7 +13,7 @@ class Plan extends Model
         'completed_tasks'
     ];
 
-    public function planRequest()
+public function planRequest()
     {
         return $this->belongsTo(PlanRequest::class, 'request_id');
     }
@@ -28,8 +28,5 @@ class Plan extends Model
         return $this->hasMany(Task::class);
     }
 
-    public function planQuizzes()
-    {
-        return $this->hasMany(PlanQuiz::class);
-    }
+    
 }
