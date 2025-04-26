@@ -18,6 +18,10 @@ class TaskController extends Controller
         // getting a plan of a task
         $plan = $task->plan;
 
+        // return $plan->planRequest->roadmapSkill;        
+        $getresult = QuizGeneratorService::generate($plan->planRequest->roadmapSkill);
+        return $getresult;
+
 
         // updating a task as completed
         if($task->is_finished == false){
@@ -50,7 +54,9 @@ class TaskController extends Controller
             ]);
 
             // generating quiz
-            QuizGeneratorService::generate();
+            QuizGeneratorService::generate($plan->planRequest->roadmapSkill);
+            
+
         }
 
         $last_studied_date = $user->last_studied_date;

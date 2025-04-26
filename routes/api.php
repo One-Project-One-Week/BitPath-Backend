@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\JwtAuthController;
 use App\Http\Controllers\Api\SocialLoginController;
 use App\Http\Controllers\Api\TasksController;
+use App\Http\Controllers\QuizQuestionController;
 use GuzzleHttp\Middleware;
 use App\Http\Controllers\Api\PlanController;
 use App\Http\Controllers\Api\RoadmapController;
@@ -56,5 +57,9 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
 
     Route::get('plans', [PlanController::class, 'index'])->name('plan.index');
     Route::get('plans/{plan}', [PlanController::class, 'show']);
+
+    Route::patch('/quizquestions/{quizQuestion}', [QuizQuestionController::class, 'update'])->name(name: 'quizquestion.update');
+
+
 
 });
