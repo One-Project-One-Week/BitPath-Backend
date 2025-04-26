@@ -46,9 +46,10 @@ class JwtAuthController extends Controller
             'statusCode' => 201,
             'message' => 'User registered successfully',
             'data' => [
-                'user' => new userResource($user),
-                'access_token' => $token,
-                'expires_in' => config('jwt.ttl') * 60,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'user_id' => $user->id,
+                'token' => $token,
             ]
         ], 201)->cookie('refresh_token', $refresh_token, 60 * 24 * 7, null, null, true, true);
     }
@@ -84,9 +85,10 @@ class JwtAuthController extends Controller
             'statusCode' => 200,
             'message' => 'User logged in successfully',
             'data' => [
-                'user' => new userResource($user),
-                'access_token' => $token,
-                'expires_in' => config('jwt.ttl') * 60,
+                'user_name' => $user->name,
+                'user_email' => $user->email,
+                'user_id' => $user->id,
+                'token' => $token,
             ]
             ])->cookie('refresh_token', $refresh_token , 60 * 24 * 7, null, null, true, true);
 
