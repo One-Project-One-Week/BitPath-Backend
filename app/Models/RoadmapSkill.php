@@ -34,6 +34,6 @@ class RoadmapSkill extends Model
 
     public function planQuizzes()
     {
-        return $this->hasMany(PlanQuiz::class);
+        return $this->hasMany(PlanQuiz::class, 'skill_id');
     }
 }

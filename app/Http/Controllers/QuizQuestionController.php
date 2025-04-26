@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\PlanQuiz;
 use App\Models\QuizQuestion;
+use App\Models\Roadmap;
+use App\Models\RoadmapSkill;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -23,9 +25,10 @@ class QuizQuestionController extends Controller
 
     
     public function update(Request $request){
-        // check validate
+
         $validator = Validator::make($request->all(), [
-            'answers' => "required|array"
+            'answers' => "required|array",
+            'skill_id' => "required",
         ]);
 
         if ($validator->fails()) {
@@ -35,14 +38,11 @@ class QuizQuestionController extends Controller
                 'errors' => $validator->errors()
             ], 422);
         }
-
         $answers = $request->input('answers');
-
-
-        $quiz_id = $request->input('quiz_id');
-
+        
         foreach ($answers as $answer) {
             $quiz_question = QuizQuestion::findOrFail($answer['question_id']);
+            $plan_quiz_id = $quiz_question->planQuiz->id;
 
             if($quiz_question->user_answer != null){
                 return response()->json([
@@ -61,7 +61,7 @@ class QuizQuestionController extends Controller
 
         return response()->json([
             'status' => 200,
-            'planQuiz' => PlanQuiz::with('quizQuestions')->where('id', $quiz_id)->get(),
+            'planQuiz' => PlanQuiz::with('quizQuestions')->where('id', $plan_quiz_id)->get(),
             'message' => 'User answered question successfully'
         ], 200);
         
