@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\Task;
+use App\Services\QuizGeneratorService;
 use Illuminate\Http\Request;
 use Psy\TabCompletion\Matcher\FunctionsMatcher;
 
@@ -30,6 +31,9 @@ class TaskController extends Controller
             $plan->update([
                 'is_finished' => true,
             ]);
+
+            // generating quiz
+            QuizGeneratorService::generate();
         }
 
         return response()->json([
