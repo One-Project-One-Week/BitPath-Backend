@@ -59,7 +59,7 @@ class TaskController extends Controller
                 'last_studied_date' => now(),
             ]);
         }
-        else if($day_diff > 1 && $day_diff < 2){
+        else if($day_diff >= 1 && $day_diff < 2){
             $user->update([
                 'current_streak' => $user->current_streak + 1,
                 'last_studied_date' => now(),
