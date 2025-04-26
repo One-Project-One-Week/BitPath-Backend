@@ -162,7 +162,7 @@ class RoadmapController extends Controller
 
         $this->authorize('update', $roadmap);
 
-        if($roadmap->users()->count() > 1) {
+        if ($roadmap->users()->count() > 1) {
             return response()->json([
                 'status' => 403,
                 'message' => 'You cannot change the visibility of a roadmap that has multiple participants.'
@@ -203,14 +203,45 @@ class RoadmapController extends Controller
     public function index()
     {
         $this->authorize('viewAny', Roadmap::class);
-        
+
         /** @var User $user */
         $user = Auth::user();
-        $roadmaps = $user->roadmaps()
+        $roadmaps = $user->roadmaps()->with('roadmapSkills:id,roadmap_id,skill,duration')
             ->select('roadmaps.id', 'title')
             ->orderBy('roadmaps.updated_at', 'desc')
             ->get()
-            ->makeHidden('pivot');
+            ->makeHidden('pivot')
+            ->map(function ($roadmap) {
+                $total_days = 0;
+
+                foreach ($roadmap->roadmapSkills as $skill) {
+                    if (preg_match('/(\d+)\s*(week|month|day)s?/i', $skill->duration, $matches)) {
+                        $value = (int) $matches[1];
+                        $unit = strtolower($matches[2]);
+
+                        switch ($unit) {
+                            case 'day':
+                                $total_days += $value;
+                                break;
+                            case 'week':
+                                $total_days += $value * 7;
+                                break;
+                            case 'month':
+                                $total_days += $value * 30;
+                                break;
+                        }
+                    }
+                }
+
+                $estimated_months = round($total_days / 30, 1);
+
+                return [
+                    'id' => $roadmap->id,
+                    'title' => $roadmap->title,
+                    'skills' => $roadmap->roadmapSkills->pluck('skill'),
+                    'estimatedTime' => $estimated_months . ' months',
+                ];
+            });
         return response()->json([
             'status' => 200,
             'roadmap' => $roadmaps,
@@ -234,7 +265,7 @@ class RoadmapController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-        $roadmap->users()->detach($user->id);       
+        $roadmap->users()->detach($user->id);
         $user->planRequests()->delete();
 
         return response()->json([
@@ -247,9 +278,44 @@ class RoadmapController extends Controller
     {
         $this->authorize('viewAny', Roadmap::class);
 
-        $roadmaps = Roadmap::select('id', 'title')
-            ->where('visibility', 'public')
-            ->orderBy('updated_at', 'desc')->get();
+        $roadmaps = Roadmap::with('roadmapSkills:id,roadmap_id,skill,duration')
+            ->select('roadmaps.id', 'roadmaps.title')
+            ->where('roadmaps.visibility', 'public')
+            ->orderBy('roadmaps.updated_at', 'desc')
+            ->get()
+            ->makeHidden('pivot')
+            ->map(function ($roadmap) {
+                $total_days = 0;
+
+                foreach ($roadmap->roadmapSkills as $skill) {
+                    if (preg_match('/(\d+)\s*(week|month|day)s?/i', $skill->duration, $matches)) {
+                        $value = (int) $matches[1];
+                        $unit = strtolower($matches[2]);
+
+                        switch ($unit) {
+                            case 'day':
+                                $total_days += $value;
+                                break;
+                            case 'week':
+                                $total_days += $value * 7;
+                                break;
+                            case 'month':
+                                $total_days += $value * 30;
+                                break;
+                        }
+                    }
+                }
+
+                $estimated_months = round($total_days / 30, 1);
+
+                return [
+                    'id' => $roadmap->id,
+                    'title' => $roadmap->title,
+                    'skills' => $roadmap->roadmapSkills->pluck('skill'),
+                    'estimatedTime' => $estimated_months . ' months',
+                ];
+            });
+
         return response()->json([
             'status' => 200,
             'roadmap' => $roadmaps,
