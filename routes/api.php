@@ -21,9 +21,15 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/roadmap', [RoadmapController::class, 'generateRoadmap'])->name('roadmap.generateRoadmap');
 
+Route::get('/shared-roadmaps', [RoadmapController::class, 'getSharedRoadmaps'])->name('roadmap.getSharedRoadmaps');
+Route::get('/shared-roadmaps/{roadmap}', [RoadmapController::class, 'showSharedRoadmap'])->name('roadmap.showSharedRoadmap');
+Route::get('/shared-roadmaps/{roadmap}/participants', [RoadmapController::class, 'getSharedRoadmapParticipants'])->name('roadmap.getSharedRoadmapParticipants');
+Route::post('/shared-roadmaps/{roadmap}/join', [RoadmapController::class, 'joinRoadmap'])->name('roadmap.joinRoadmap');
+Route::post('/shared-roadmaps/{roadmap}/leave', [RoadmapController::class, 'destory'])->name('roadmap.leaveRoadmap');
+
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
-Route::group(['prefix' => 'auth'], function(){
+Route::group(['prefix' => 'auth'], function () {
     Route::post('signup', [JwtAuthController::class, 'register']);
     Route::post('signin', [JwtAuthController::class, 'login']);
     Route::get('profile', [JwtAuthController::class, 'profile'])->middleware('jwtauthmiddleware');
@@ -32,20 +38,15 @@ Route::group(['prefix' => 'auth'], function(){
     Route::post('{provider}/callback', [SocialLoginController::class, 'socialLogin']);
 });
 
-Route::group(['middleware' => ['jwtauthmiddleware']], function(){
-    Route::resource('/recommandresources',RecommandResourcesController::class);
-    Route::resource('/resoucelinks',ResourcelinksController::class);
+Route::group(['middleware' => ['jwtauthmiddleware']], function () {
+    Route::resource('/recommandresources', RecommandResourcesController::class);
+    Route::resource('/resoucelinks', ResourcelinksController::class);
 
     Route::get('/roadmaps', [RoadmapController::class, 'index'])->name('roadmap.index');
     Route::post('/roadmap/store', [RoadmapController::class, 'store'])->name('roadmap.store');
     Route::get('/roadmap/{roadmap}', [RoadmapController::class, 'show'])->name('roadmap.show');
     Route::delete('/roadmap/{roadmap}', [RoadmapController::class, 'destroy'])->name('roadmap.destroy');
     Route::patch('/roadmap/{roadmap}/visibility', [RoadmapController::class, 'updateVisibility'])->name('roadmap.updateVisibility');
-
-    Route::get('/shared-roadmaps', [RoadmapController::class, 'getSharedRoadmaps'])->name('roadmap.getSharedRoadmaps');
-    Route::get('/shared-roadmaps/{roadmap}', [RoadmapController::class, 'showSharedRoadmap'])->name('roadmap.showSharedRoadmap');
-    Route::get('/shared-roadmaps/{roadmap}/participants', [RoadmapController::class, 'getSharedRoadmapParticipants'])->name('roadmap.getSharedRoadmapParticipants');
-    Route::post('/shared-roadmaps/{roadmap}/join', [RoadmapController::class, 'joinRoadmap'])->name('roadmap.joinRoadmap');
 
     Route::get('/roadmap/{roadmap}/skills', [RoadmapController::class, 'getRoadmapSkills'])->name('roadmap.getRoadmapSkills');
     Route::get('/roadmap/{roadmap}/skills/{skill}', [RoadmapController::class, 'getRoadmapSkill'])->name('roadmap.getRoadmapSkill');
@@ -59,7 +60,4 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function(){
     Route::get('plans/{plan}', [PlanController::class, 'show']);
 
     Route::patch('/quizquestions/{quizQuestion}', [QuizQuestionController::class, 'update'])->name(name: 'quizquestion.update');
-
-
-
 });
