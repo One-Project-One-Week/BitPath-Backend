@@ -162,6 +162,13 @@ class RoadmapController extends Controller
 
         $this->authorize('update', $roadmap);
 
+        if($roadmap->users()->count() > 1) {
+            return response()->json([
+                'status' => 403,
+                'message' => 'You cannot change the visibility of a roadmap that has multiple participants.'
+            ], 403);
+        }
+
         $roadmap->update([
             'visibility' => $request->visibility,
         ]);
@@ -227,7 +234,8 @@ class RoadmapController extends Controller
 
         /** @var User $user */
         $user = Auth::user();
-        $roadmap->users()->detach($user->id);        
+        $roadmap->users()->detach($user->id);       
+        $user->planRequests()->delete();
 
         return response()->json([
             'status' => 200,
