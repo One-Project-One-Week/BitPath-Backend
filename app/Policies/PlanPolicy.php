@@ -29,10 +29,7 @@ class PlanPolicy
      */
     public function create(User $user): bool
     {
-<<<<<<< HEAD
-=======
         return false;
->>>>>>> 74705e19721e7345c527aadcccde73d781c10e37
     }
 
     /**
@@ -40,10 +37,7 @@ class PlanPolicy
      */
     public function update(User $user, Plan $plan): bool
     {
-<<<<<<< HEAD
-=======
         return false;
->>>>>>> 74705e19721e7345c527aadcccde73d781c10e37
     }
 
     /**
