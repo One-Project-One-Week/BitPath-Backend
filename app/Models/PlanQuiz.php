@@ -9,6 +9,8 @@ class PlanQuiz extends Model
     protected $fillable = [
         'user_id',
         'skill_id',
+        'score',
+        'status',
     ];
 
     public function user()
@@ -23,6 +25,6 @@ class PlanQuiz extends Model
 
     public function quizQuestions()
     {
-        return $this->hasMany(QuizQuestion::class, 'quiz_id');
+        return $this->hasMany(QuizQuestion::class,'quiz_id');
     }
 }

@@ -18,6 +18,7 @@ class TaskController extends Controller
         // getting a plan of a task
         $plan = $task->plan;
 
+
         // updating a task as completed
         if($task->is_finished == false){
             $task->update([
@@ -30,7 +31,7 @@ class TaskController extends Controller
             ], 400);
         }
 
-        
+
         if($user->last_studied_date == null){
             $user->update([
                 'last_studied_date' => now(),
@@ -50,6 +51,7 @@ class TaskController extends Controller
 
             // generating quiz
             QuizGeneratorService::generate($plan->planRequest->roadmapSkill);
+
         }
 
         $last_studied_date = $user->last_studied_date;
@@ -87,7 +89,7 @@ class TaskController extends Controller
             $user->update([
                 'longest_streak' => $longest_streak,
             ]);
-        }   
+        }
 
         return response()->json([
             'status' => 200,
