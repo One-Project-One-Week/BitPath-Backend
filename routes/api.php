@@ -24,8 +24,6 @@ Route::post('/roadmap', [RoadmapController::class, 'generateRoadmap'])->name('ro
 Route::get('/shared-roadmaps', [RoadmapController::class, 'getSharedRoadmaps'])->name('roadmap.getSharedRoadmaps');
 Route::get('/shared-roadmaps/{roadmap}', [RoadmapController::class, 'showSharedRoadmap'])->name('roadmap.showSharedRoadmap');
 Route::get('/shared-roadmaps/{roadmap}/participants', [RoadmapController::class, 'getSharedRoadmapParticipants'])->name('roadmap.getSharedRoadmapParticipants');
-Route::post('/shared-roadmaps/{roadmap}/join', [RoadmapController::class, 'joinRoadmap'])->name('roadmap.joinRoadmap');
-Route::post('/shared-roadmaps/{roadmap}/leave', [RoadmapController::class, 'destory'])->name('roadmap.leaveRoadmap');
 
 Route::get('/leaderboard', [LeaderboardController::class, 'index'])->name('leaderboard.index');
 
@@ -50,6 +48,9 @@ Route::group(['middleware' => ['jwtauthmiddleware']], function () {
 
     Route::get('/roadmap/{roadmap}/skills', [RoadmapController::class, 'getRoadmapSkills'])->name('roadmap.getRoadmapSkills');
     Route::get('/roadmap/{roadmap}/skills/{skill}', [RoadmapController::class, 'getRoadmapSkill'])->name('roadmap.getRoadmapSkill');
+
+    Route::post('/shared-roadmaps/{roadmap}/join', [RoadmapController::class, 'joinRoadmap'])->name('roadmap.joinRoadmap');
+    Route::post('/shared-roadmaps/{roadmap}/leave', [RoadmapController::class, 'destory'])->name('roadmap.leaveRoadmap');
 
     Route::post('/plans', [PlanController::class, 'generatePlan'])->name('plan.generatePlan');
     // this is updating task as completed if user clicked complete a task
