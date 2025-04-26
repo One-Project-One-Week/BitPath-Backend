@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Plan;
 use App\Models\Task;
+use App\Services\QuizGeneratorService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth as FacadesAuth;
 use Illuminate\Support\Facades\Auth;
@@ -47,6 +48,9 @@ class TaskController extends Controller
             $plan->update([
                 'is_finished' => true,
             ]);
+
+            // generating quiz
+            QuizGeneratorService::generate();
         }
 
         $last_studied_date = $user->last_studied_date;
